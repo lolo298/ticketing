@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  web:
+    build: ./ticketing
+    ports:
+      - "8081:80" 
+    depends_on:
+      - db 
+    volumes:
+      - ./ticketing:/var/www/html
+  exos:
+    build: ./exos
+    ports:
+      - "8082:80"
+    depends_on:
+      - db
+    volumes:
+      - ./exos:/var/www/html
+  db:
+    image: mysql:8.1.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password 
+      MYSQL_DATABASE: lamp_db
+    volumes:
+      - ./mysql_data:/var/lib/mysql 
+    ports:
+      - "3306:3306"

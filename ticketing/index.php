@@ -1,84 +1,74 @@
 <?php
-require_once 'BDD.php';
-try{
 
-  $bdd = BDD::getInstance();
-} catch (PDOException $e) {
-  echo 'Connexion échouée : ' . $e->getMessage();
-  die();
+use Runtime\Route;
+require_once __DIR__ . '/autoload.php';
+
+//scan existing controllers
+function scan_dir($dir) {
+  $files = scandir($dir);
+  $controllers = [];
+  foreach ($files as $file) {
+    if ($file === '.' || $file === '..') {
+      continue;
+    }
+    if (is_dir($dir . '/' . $file)) {
+      $controllers = array_merge($controllers, scan_dir($dir . '/' . $file));
+    } else {
+      $controller = str_replace('.php', '', $file);
+      $controllers[] = $controller;
+    }
+  }
+  return $controllers;
 }
 
-$stmt = $bdd->prepare('SELECT * FROM tickets ORDER BY creation DESC LIMIT 10 OFFSET :offset');
-$stmt->bindValue(':offset', 0, PDO::PARAM_INT);
-$stmt->execute();
-$tickets = $stmt->fetchAll();
+$controllers = scan_dir(__DIR__ . "/src/Controllers");
+$routes = [];
 
-?>
+class RouteData {
+  public string $name;
+  public string $path;
+  public string $http_method;
+  public string $action;
+  public object $controller;
+}
 
+//parse routes availables
+foreach($controllers as $controllerName) {
+  $controllerName = "Ticketing\\Controllers\\" . $controllerName;
+  $controller = new $controllerName();
+  $reflect = new ReflectionClass( $controller);
+  $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
+  foreach ($methods as $method) {
+    $attrs = $method->getAttributes(Route::class);
+    if (count($attrs) > 0) {
+        $route = $attrs[0]->newInstance();
+        $name = $route->getName();
+        $path = $route->getPath();
+        $http_method = $route->getMethod();
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <link rel="stylesheet" href="/public/css/style.css">
-  <title>Document</title>
-</head>
-<body>
-  <nav class="navbar">
-    <h1>Ticketing</h1>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
-  </nav>
-  <main>
-    <button id="newTicketBtn">nouveau ticket</button>
-    <table>
-      <tr>
-        <th>N°</th>
-        <th>Sujet</th>
-        <th>Creation</th>
-        <th>Mise a jour</th>
-        <th>Demande</th>
-        <th>Etat</th>
-        <th></th>
-      </tr>
-      
-      <?php foreach ($tickets as $ticket): ?>
-        <tr>
-          <td><?= $ticket['id_ticket'] ?></td>
-          <td><?= $ticket['subject'] ?></td>
-          <td><?= $ticket['creation'] ?></td>
-          <td><?= $ticket['update'] ?></td>
-          <td><?= $ticket['description'] ?></td>
-          <td><?= null ?></td>
-          <td><a href="ticket.php?id=<?= $ticket['id_ticket'] ?>"><i class="fas fa-eye"></i></a></td>
-        </tr>
-      <?php endforeach; ?>
-    </table>
+        $data = new RouteData();
+        $data->name = $name;
+        $data->path = $path;
+        $data->http_method = $http_method;
+        $data->action = $method->getName();
+        $data->controller = $controller;
 
-  </main>
-
-
-  <dialog id="newTicketModal">
-    <form method="POST" action="/api/newTicket.php">
-      
-      <label for="subject">Sujet</label>
-      <input type="text" name="subject" id="subject">
-      
-      <label for="description">Description</label>
-      <textarea name="description" id="description" cols="30" rows="10"></textarea>
-      
-      <button type="submit">Envoyer</button>
-      <input type="reset"/>
-    </form>
-  </dialog>
+        $routes[$path."::".$http_method] = $data;
+    }
+  }
+  
+}
 
 
 
-  <script src="/public/js/index.js"></script>
-</body>
-</html>
+$request = $_SERVER['REQUEST_URI'];
+$method = $_SERVER['REQUEST_METHOD'];
+$curr = $routes["$request::$method"] ?? null;
+if ($curr === null) {
+  echo '404';
+} else {
+  $action = $curr->action;
+  $controller = $curr->controller;
+  $controller->$action();
+}
+

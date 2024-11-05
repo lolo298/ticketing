@@ -35,7 +35,25 @@ class RouteData {
 //parse routes availables
 foreach($controllers as $controllerName) {
   $controllerName = "Ticketing\\Controllers\\" . $controllerName;
-  $controller = new $controllerName();
+
+
+  $controllerReflect = new \ReflectionClass($controllerName);
+  $constructParams = $controllerReflect->getConstructor()->getParameters();
+  $params = [];
+  foreach ($constructParams as $constructParam) {
+    $type = $constructParam->getType();
+    if ($type !== null) {
+      $className = $type->getName();
+      $instance = new $className();
+      $params[$constructParam->getName()] = $instance;
+    }
+  }
+
+  $controller = $controllerReflect->newInstanceArgs($params);
+
+
+
+  // $controller = new $controllerName();
   $reflect = new ReflectionClass( $controller);
   $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
   foreach ($methods as $method) {

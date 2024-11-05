@@ -8,25 +8,25 @@ class Ticket extends ORM\Entity {
   #[ORM\Id]
   private ?int $id = null;
 
-  // #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:"tickets")]
   private $utilisateur;
-  // #[ORM\ManyToOne(targetEntity: Type::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Type::class, inversedBy:"tickets")]
   private $type;
-  // #[ORM\ManyToOne(targetEntity: User::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Priority::class, inversedBy:"tickets")]
   private $priority;
-  // #[ORM\ManyToOne(targetEntity: User::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: State::class, inversedBy:"tickets")]
   private $state;
-  // #[ORM\ManyToOne(targetEntity: User::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:"tickets")]
   private $traitements;
-  #[ORM\Column(type:"string", nullable: false)]
+  #[ORM\Column(type:ORM\ColumnType::VARCHAR)]
   private ?string $subject = null;
-  #[ORM\Column(type:"string", nullable: true)]
+  #[ORM\Column(type:ORM\ColumnType::VARCHAR, nullable: true)]
   private ?string $description = null;
-  #[ORM\Column(type:"string", nullable: true)]
+  #[ORM\Column(type:ORM\ColumnType::VARCHAR, nullable: true)]
   private ?string $filepath = null;
-  #[ORM\Column(type:"datetime", nullable: false, default: true)]
+  #[ORM\Column(type:ORM\ColumnType::DATETIME, nullable: false, default: true)]
   private DateTime $creation;
-  #[ORM\Column(type:"datetime", nullable: false, default: true)]
+  #[ORM\Column(type:ORM\ColumnType::DATETIME, nullable: false, default: true)]
   private DateTime $update;
 
 

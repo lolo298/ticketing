@@ -3,12 +3,12 @@ spl_autoload_register(function ($class) {
   $class = str_replace('\\', '/', $class);
 
   if (file_exists(__DIR__ .'/App/'. $class .'.php')) {
-    require __DIR__ .'/App/'. $class .'.php';
+    require_once __DIR__ .'/App/'. $class .'.php';
   } else {
     $class = str_replace('Ticketing/', '', $class);
     $path = find_file(__DIR__ .'/src', $class . '.php');
     if ($path !== null && file_exists($path)) {
-      require $path;
+      require_once $path;
   }
 }
 });

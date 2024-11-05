@@ -5,13 +5,21 @@ use Runtime\AbstractController;
 use Runtime\Route;
 use Runtime\BDD;
 use Ticketing\Models\Ticket;
+use Ticketing\Repositories\UtilisateurManager;
 
 class MainController extends AbstractController {
+
+  private UtilisateurManager $userManager;
+
+  public function __construct(UtilisateurManager $utilisateurManager) {
+    $this->userManager = $utilisateurManager;
+  }
+
+
 
   #[Route('/', 'GET', 'home')]
   public function home(): void {
     try{
-
       $bdd = BDD::getInstance();
     } catch (\PDOException $e) {
       echo 'Connexion échouée : ' . $e->getMessage();
@@ -24,10 +32,17 @@ class MainController extends AbstractController {
     $tickets = $stmt->fetchAll();
 
     $ticket = new Ticket();
-    // $ticket->setCreation(new \DateTime());
-    // $ticket->setUpdate(new \DateTime());
+    $ticket->setCreation(new \DateTime());
+    $ticket->setUpdate(new \DateTime());
     $ticket->setSubject("test orm");
 
+    $user = $this->userManager->getUser(1);
+    // $ticket->setUtilisateur($user);
+
+    echo "AAAAAAAAAAAAAA <br>";
+    echo "<pre>";
+    print_r($user->getRoles()[0]->getUtilisateurs()[0]);
+    echo "</pre>";
 
     // $ticket->save();
     

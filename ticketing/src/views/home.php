@@ -29,15 +29,20 @@
         <th></th>
       </tr>
       
-      <?php foreach ($tickets as $ticket): ?>
+      <?php
+      /**
+       * @var Ticketing\Models\Ticket[] $tickets
+       */
+       foreach ($tickets as $ticket):
+        ?>
         <tr>
-          <td><?= $ticket['id_ticket'] ?></td>
-          <td><?= $ticket['subject'] ?></td>
-          <td><?= $ticket['creation'] ?></td>
-          <td><?= $ticket['update'] ?></td>
-          <td><?= $ticket['description'] ?></td>
+          <td><?= $ticket->getId() ?></td>
+          <td><?= $ticket->getSubject() ?></td>
+          <td><?= $ticket->getCreationDate()->format("d/M/Y H:m:s") ?></td>
+          <td><?= $ticket->getUpdateDate()->format("d/M/Y H:m:s") ?></td>
+          <td><?= $ticket->getDescription() ?></td>
           <td><?= null ?></td>
-          <td><a href="ticket.php?id=<?= $ticket['id_ticket'] ?>"><i class="fas fa-eye"></i></a></td>
+          <td><a href="ticket.php?id=<?= $ticket->getId() ?>"><i class="fas fa-eye"></i></a></td>
         </tr>
       <?php endforeach; ?>
     </table>

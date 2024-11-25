@@ -4,7 +4,7 @@ namespace Ticketing\Repositories;
 use Runtime\Manager;
 use Ticketing\Models\Ticket;
 
-class ticketManager extends Manager {
+class TicketManager extends Manager {
 
   public function __construct() {
     parent::__construct();
@@ -21,9 +21,12 @@ class ticketManager extends Manager {
   }
 
   /** @return Ticket[] */
-  public function getTickets(int $limit, int $offset): array {
+  public function getTickets(int $limit = 10, int $offset = 0): array {
     $query = $this->getInstance()->prepare('SELECT * FROM ticket LIMIT :limit OFFSET :offset');
-    $query->execute(['limit'=> $limit,'offset'=> $offset]);
+    $query->bindParam(':limit', $limit, \PDO::PARAM_INT);
+    $query->bindParam(':offset', $offset, \PDO::PARAM_INT);
+
+    $query->execute();
     $res = $query->fetchAll(\PDO::FETCH_ASSOC);
     $tickets = [];
     foreach ($res as $user) {

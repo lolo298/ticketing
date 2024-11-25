@@ -26,6 +26,7 @@ class Utilisateur extends ORM\Entity {
   public function getRoles(): array { return $this->roles; }
   public function getActif(): bool { return $this->actif; }
   public function getCreationDate(): DateTime { return $this->creationDate; }
+  
   public function setId(int $id): void { $this->id = $id; }
   public function setLogin(string $login): void { $this->login = $login; }
   public function setPassword(string $password): void { $this->password = $password; }

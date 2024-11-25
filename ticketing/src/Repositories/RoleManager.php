@@ -4,7 +4,7 @@ namespace Ticketing\Repositories;
 use Runtime\Manager;
 use Ticketing\Models\Role;
 
-class roleManager extends Manager {
+class RoleManager extends Manager {
 
   public function __construct() {
     parent::__construct();

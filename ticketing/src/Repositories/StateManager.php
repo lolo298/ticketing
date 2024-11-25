@@ -4,7 +4,7 @@ namespace Ticketing\Repositories;
 use Runtime\Manager;
 use Ticketing\Models\State;
 
-class stateManager extends Manager {
+class StateManager extends Manager {
 
   public function __construct() {
     parent::__construct();

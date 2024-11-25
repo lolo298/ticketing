@@ -4,7 +4,7 @@ namespace Ticketing\Repositories;
 use Runtime\Manager;
 use Ticketing\Models\Priority;
 
-class priorityManager extends Manager {
+class PriorityManager extends Manager {
 
   public function __construct() {
     parent::__construct();

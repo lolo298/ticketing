@@ -16,7 +16,7 @@ class Ticket extends ORM\Entity {
   private $priority;
   #[ORM\ManyToOne(targetEntity: State::class, inversedBy:"tickets")]
   private $state;
-  #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:"tickets")]
+  // #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:"tickets")]
   private $traitements;
   #[ORM\Column(type:ORM\ColumnType::VARCHAR)]
   private ?string $subject = null;
@@ -25,32 +25,33 @@ class Ticket extends ORM\Entity {
   #[ORM\Column(type:ORM\ColumnType::VARCHAR, nullable: true)]
   private ?string $filepath = null;
   #[ORM\Column(type:ORM\ColumnType::DATETIME, nullable: false, default: true)]
-  private DateTime $creation;
+  private DateTime $creationDate;
   #[ORM\Column(type:ORM\ColumnType::DATETIME, nullable: false, default: true)]
-  private DateTime $update;
+  private DateTime $updateDate;
 
 
   public function getId(): ?int { return $this->id; }
   public function getUtilisateur(): Utilisateur { return $this->utilisateur; }
   public function getType(): Type { return $this->type; }
-  public function getPriority(): int { return $this->priority; }
-  public function getState(): int { return $this->state; }
+  public function getPriority(): Priority { return $this->priority; }
+  public function getState(): State { return $this->state; }
   public function getTraitements(): int { return $this->traitements; }
   public function getSubject(): ?string { return $this->subject; }
   public function getDescription(): ?string { return $this->description; }
   public function getFilepath(): ?string { return $this->filepath; }
-  public function getCreation(): DateTime { return $this->creation; }
-  public function getUpdate(): DateTime { return $this->update; }
+  public function getCreationDate(): DateTime { return $this->creationDate; }
+  public function getUpdateDate(): DateTime { return $this->updateDate; }
 
 
+  public function setId(int $id): void { $this->id = $id; }
   public function setUtilisateur(Utilisateur $utilisateur): void { $this->utilisateur = $utilisateur; }
   public function setType(Type $type): void { $this->type = $type; }
-  public function setPriority(int $priority): void { $this->priority = $priority; }
-  public function setState(int $state): void { $this->state = $state; }
+  public function setPriority(Priority $priority): void { $this->priority = $priority; }
+  public function setState(State $state): void { $this->state = $state; }
   public function setTraitements(int $traitements): void { $this->traitements = $traitements; }
   public function setSubject(string $subject): void { $this->subject = $subject; }
   public function setDescription(string $description): void { $this->description = $description; }
   public function setFilepath(string $filepath): void { $this->filepath = $filepath; }
-  public function setCreation(DateTime $creation): void { $this->creation = $creation; }
-  public function setUpdate(DateTime $update): void { $this->update = $update; }
+  public function setCreationDate(DateTime $creation): void { $this->creationDate = $creation; }
+  public function setUpdateDate(DateTime $update): void { $this->updateDate = $update; }
 }

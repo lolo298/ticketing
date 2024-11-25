@@ -4,7 +4,7 @@ namespace Ticketing\Repositories;
 use Runtime\Manager;
 use Ticketing\Models\Type;
 
-class typeManager extends Manager {
+class TypeManager extends Manager {
 
   public function __construct() {
     parent::__construct();

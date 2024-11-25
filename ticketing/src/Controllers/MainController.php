@@ -5,14 +5,30 @@ use Runtime\AbstractController;
 use Runtime\Route;
 use Runtime\BDD;
 use Ticketing\Models\Ticket;
+use Ticketing\Models\Utilisateur;
+use Ticketing\Repositories\RoleManager;
+use Ticketing\Repositories\TypeManager;
 use Ticketing\Repositories\UtilisateurManager;
+use Ticketing\Repositories\PriorityManager;
+use Ticketing\Repositories\StateManager;
+use Ticketing\Repositories\TicketManager;
 
 class MainController extends AbstractController {
 
   private UtilisateurManager $userManager;
+  private RoleManager $roleManager;
+  private TypeManager $typeManager;
+  private PriorityManager $priorityManager;
+  private StateManager $stateManager;
+  private TicketManager $ticketManager;
 
-  public function __construct(UtilisateurManager $utilisateurManager) {
+  public function __construct(UtilisateurManager $utilisateurManager, RoleManager $roleManager, TypeManager $typeManager, PriorityManager $priorityManager, StateManager $stateManager, TicketManager $ticketManager) {
     $this->userManager = $utilisateurManager;
+    $this->roleManager = $roleManager;
+    $this->typeManager = $typeManager;
+    $this->priorityManager = $priorityManager;
+    $this->stateManager = $stateManager;
+    $this->ticketManager = $ticketManager;
   }
 
 
@@ -26,24 +42,7 @@ class MainController extends AbstractController {
       die();
     }
     
-    $stmt = $bdd->prepare('SELECT * FROM ticket ORDER BY creation DESC LIMIT 10 OFFSET :offset');
-    $stmt->bindValue(':offset', 0, \PDO::PARAM_INT);
-    $stmt->execute();
-    $tickets = $stmt->fetchAll();
-
-    $ticket = new Ticket();
-    $ticket->setCreation(new \DateTime());
-    $ticket->setUpdate(new \DateTime());
-    $ticket->setSubject("test orm");
-
-    $user = $this->userManager->getUser(1);
-    // $ticket->setUtilisateur($user);
-
-    echo "AAAAAAAAAAAAAA <br>";
-    echo "<pre>";
-    print_r($user->getRoles()[0]->getUtilisateurs()[0]);
-    echo "</pre>";
-
+    $tickets = $this->ticketManager->getTickets();
     // $ticket->save();
     
     $this->render('home', ['tickets' => $tickets]);

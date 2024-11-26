@@ -15,8 +15,7 @@ class RoleManager extends Manager {
     $query->execute(['id' => $idRole]);
     $res = $query->fetch(\PDO::FETCH_ASSOC);
 
-    $role = new Role();
-    $role->hydrate($res);
+    $role = new Role($res);
     return $role;
   }
 
@@ -26,9 +25,8 @@ class RoleManager extends Manager {
     $query->execute(['limit'=> $limit,'offset'=> $offset]);
     $res = $query->fetchAll(\PDO::FETCH_ASSOC);
     $roles = [];
-    foreach ($res as $user) {
-      $r = new Role();
-      $r->hydrate($user);
+    foreach ($res as $data) {
+      $r = new Role($data);
       $roles[] = $r;
     }
     return $roles;

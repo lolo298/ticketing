@@ -15,8 +15,7 @@ class TypeManager extends Manager {
     $query->execute(['id' => $idType]);
     $res = $query->fetch(\PDO::FETCH_ASSOC);
 
-    $type = new Type();
-    $type->hydrate($res);
+    $type = new Type($res);
     return $type;
   }
 
@@ -26,9 +25,8 @@ class TypeManager extends Manager {
     $query->execute(['limit'=> $limit,'offset'=> $offset]);
     $res = $query->fetchAll(\PDO::FETCH_ASSOC);
     $types = [];
-    foreach ($res as $user) {
-      $r = new Type();
-      $r->hydrate($user);
+    foreach ($res as $data) {
+      $r = new Type($data);
       $types[] = $r;
     }
     return $types;

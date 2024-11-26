@@ -15,8 +15,8 @@ class UtilisateurManager extends Manager {
     $query->execute(['id' => $idUtilisateur]);
     $res = $query->fetch(\PDO::FETCH_ASSOC);
 
-    $user = new Utilisateur();
-    $user->hydrate($res);
+    // var_dump($res);
+    $user = new Utilisateur($res);
     return $user;
   }
 
@@ -26,9 +26,8 @@ class UtilisateurManager extends Manager {
     $query->execute(['limit'=> $limit,'offset'=> $offset]);
     $res = $query->fetchAll(\PDO::FETCH_ASSOC);
     $users = [];
-    foreach ($res as $user) {
-      $u = new Utilisateur();
-      $u->hydrate($user);
+    foreach ($res as $data) {
+      $u = new Utilisateur($data);
       $users[] = $u;
     }
     return $users;

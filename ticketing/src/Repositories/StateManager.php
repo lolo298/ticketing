@@ -15,8 +15,7 @@ class StateManager extends Manager {
     $query->execute(['id' => $idState]);
     $res = $query->fetch(\PDO::FETCH_ASSOC);
 
-    $state = new State();
-    $state->hydrate($res);
+    $state = new State($res);
     return $state;
   }
 
@@ -26,9 +25,8 @@ class StateManager extends Manager {
     $query->execute(['limit'=> $limit,'offset'=> $offset]);
     $res = $query->fetchAll(\PDO::FETCH_ASSOC);
     $states = [];
-    foreach ($res as $user) {
-      $r = new State();
-      $r->hydrate($user);
+    foreach ($res as $data) {
+      $r = new State($data);
       $states[] = $r;
     }
     return $states;

@@ -1,5 +1,6 @@
 <?php
 
+use Runtime\Helpers;
 use Runtime\Route;
 require_once __DIR__ . '/autoload.php';
 
@@ -23,14 +24,6 @@ function scan_dir($dir) {
 
 $controllers = scan_dir(__DIR__ . "/src/Controllers");
 $routes = [];
-
-class RouteData {
-  public string $name;
-  public string $path;
-  public string $http_method;
-  public string $action;
-  public object $controller;
-}
 
 //parse routes availables
 foreach($controllers as $controllerName) {
@@ -64,7 +57,7 @@ foreach($controllers as $controllerName) {
         $path = $route->getPath();
         $http_method = $route->getMethod();
 
-        $data = new RouteData();
+        $data = new \Runtime\RouteData();
         $data->name = $name;
         $data->path = $path;
         $data->http_method = $http_method;
@@ -85,6 +78,8 @@ $curr = $routes["$request::$method"] ?? null;
 if ($curr === null) {
   echo '404';
 } else {
+  $helpers = new Helpers($routes);
+  
   $action = $curr->action;
   $controller = $curr->controller;
   $controller->$action();

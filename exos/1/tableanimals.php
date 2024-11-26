@@ -9,7 +9,7 @@
 
 <body>
   <?php
-
+  echo "yaaay";
   $bdd = new PDO('mysql:host=db;dbname=animals;charset=utf8', 'root', 'root_password');
 
   // $res = $bdd->prepare('SELECT a.*, e.nom AS nom_espece FROM animals a LEFT JOIN especes e ON a.id_espece = e.id');

@@ -15,8 +15,7 @@ class PriorityManager extends Manager {
     $query->execute(['id' => $idPriority]);
     $res = $query->fetch(\PDO::FETCH_ASSOC);
 
-    $priority = new Priority();
-    $priority->hydrate($res);
+    $priority = new Priority($res);
     return $priority;
   }
 
@@ -25,13 +24,12 @@ class PriorityManager extends Manager {
     $query = $this->getInstance()->prepare('SELECT * FROM priority LIMIT :limit OFFSET :offset');
     $query->execute(['limit'=> $limit,'offset'=> $offset]);
     $res = $query->fetchAll(\PDO::FETCH_ASSOC);
-    $prioritys = [];
-    foreach ($res as $user) {
-      $r = new Priority();
-      $r->hydrate($user);
-      $prioritys[] = $r;
+    $priorities = [];
+    foreach ($res as $data) {
+      $r = new Priority($data);
+      $priorities[] = $r;
     }
-    return $prioritys;
+    return $priorities;
   }
 
 }

@@ -6,8 +6,7 @@ class Manager {
 
   public static function getInstance(): \PDO {
     if (is_null(self::$instance)) {
-      self::$instance = new \PDO('mysql:host=db;dbname=ticketing', 'root', 'root_password');
-      self::$instance->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+      self::$instance = BDD::getInstance()->getPdo();
     }
     return self::$instance;
   }

@@ -42,10 +42,30 @@ class MainController extends AbstractController {
       die();
     }
     
-    $tickets = $this->ticketManager->getTickets();
+    $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC');
     // $ticket->save();
     
     $this->render('home', ['tickets' => $tickets]);
+  }
+
+  #[Route('/api/newTicket', 'POST','newTicket')]
+  public function newTicket() {
+    $ticket = new Ticket($_POST);
+    $user = $this->userManager->getUser($_COOKIE['user'] ?? 1);
+    $type = $this->typeManager->getType(1);
+    $priority = $this->priorityManager->getPriority(1);
+    $state = $this->stateManager->getState(1);
+
+    $ticket->setUtilisateur($user);
+    $ticket->setType($type);
+    $ticket->setPriority($priority);
+    $ticket->setState($state);
+
+    $ticket->save();
+
+    header('Location: ' . $_SERVER['HTTP_REFERER']);
+    
+
   }
 
   #[Route('/login', 'GET', 'login')]

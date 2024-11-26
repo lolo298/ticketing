@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,13 +29,13 @@
         <th>Etat</th>
         <th></th>
       </tr>
-      
+
       <?php
       /**
        * @var Ticketing\Models\Ticket[] $tickets
        */
-       foreach ($tickets as $ticket):
-        ?>
+      foreach ($tickets as $ticket):
+      ?>
         <tr>
           <td><?= $ticket->getId() ?></td>
           <td><?= $ticket->getSubject() ?></td>
@@ -51,16 +52,16 @@
 
 
   <dialog id="newTicketModal">
-    <form method="POST" action="/api/newTicket.php">
-      
+    <form method="POST" action="<?= $helpers->getPath("newTicket") ?>">
+
       <label for="subject">Sujet</label>
       <input type="text" name="subject" id="subject">
-      
+
       <label for="description">Description</label>
       <textarea name="description" id="description" cols="30" rows="10"></textarea>
-      
+
       <button type="submit">Envoyer</button>
-      <input type="reset"/>
+      <input type="reset" />
     </form>
   </dialog>
 
@@ -68,4 +69,5 @@
 
   <script src="/public/js/index.js"></script>
 </body>
+
 </html>

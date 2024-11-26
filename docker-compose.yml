@@ -4,14 +4,24 @@ services:
     build: ./ticketing
     ports:
       - "8081:80" 
+    environment:
+      DB_ADDRESS: ${DB_ADDRESS}
     depends_on:
       - db 
-    volumes:
-      - ./ticketing:/var/www/html
+    develop:
+      watch:
+        - path: ./ticketing
+          target: /var/www/html
+          action: sync
+        - path: ./ticketing/Dockerfile
+          target: /var/www/html/Dockerfile
+          action: rebuild
   exos:
     build: ./exos
     ports:
       - "8082:80"
+    environment:
+      DB_ADDRESS: ${DB_ADDRESS}
     depends_on:
       - db
     volumes:

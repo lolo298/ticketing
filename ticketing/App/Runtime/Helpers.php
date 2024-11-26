@@ -25,10 +25,15 @@ class Helpers {
     }
   }
 
-  function getPath(string $name): string {
+  function getPath(string $name, $params = []): string {
     foreach ($this->routes as $r) {
       if ($r->name === $name) {
-        return $r->path;
+        $path = $r->path;
+        foreach ($params as $k => $v) {
+
+          $path = preg_replace("/\{$k\}/", (string)$v, $path);
+        }
+        return $path;
       }
     }
 

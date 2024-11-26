@@ -16,7 +16,7 @@ class Ticket extends ORM\Entity {
   private $priority;
   #[ORM\ManyToOne(targetEntity: State::class, inversedBy:"tickets")]
   private $state;
-  // #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:"tickets")]
   private $traitements;
   #[ORM\Column(type:ORM\ColumnType::VARCHAR)]
   private ?string $subject = null;

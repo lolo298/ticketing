@@ -1,6 +1,7 @@
 :root {
   --primary-color: #333;
   --primary-text-color: #fff;
+  --secondary-color: #000;
 }
 
 body {
@@ -36,7 +37,7 @@ body {
 }
 
 a:link, a:visited {
-  color: var(--primary-text-color);
+  color: var(--secondary-color);
   text-decoration: none;
 }
 

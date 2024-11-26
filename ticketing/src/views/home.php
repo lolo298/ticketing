@@ -37,13 +37,12 @@
       foreach ($tickets as $ticket):
       ?>
         <tr>
-          <td><?= $ticket->getId() ?></td>
+          <td><a href="<?= $helpers->getPath("ticket", ['id' => $ticket->getId()]) ?>"><?= $ticket->getId() ?></a></td>
           <td><?= $ticket->getSubject() ?></td>
           <td><?= $ticket->getCreationDate()->format("d/M/Y H:m:s") ?></td>
           <td><?= $ticket->getUpdateDate()->format("d/M/Y H:m:s") ?></td>
           <td><?= $ticket->getDescription() ?></td>
           <td><?= null ?></td>
-          <td><a href="ticket.php?id=<?= $ticket->getId() ?>"><i class="fas fa-eye"></i></a></td>
         </tr>
       <?php endforeach; ?>
     </table>

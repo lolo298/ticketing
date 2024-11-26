@@ -63,8 +63,10 @@ foreach($controllers as $controllerName) {
         $data->http_method = $http_method;
         $data->action = $method->getName();
         $data->controller = $controller;
-
-        $routes[$path."::".$http_method] = $data;
+        $regexPath = preg_replace('/\{(.+)\}/', '(?<$1>(\w+))', $path);
+        $regexPath = str_replace('/', '\/', $regexPath);
+        $regexPath = '/^' . $regexPath . '$/';
+        $routes[$regexPath."::".$http_method] = $data;
     }
   }
   
@@ -74,14 +76,34 @@ foreach($controllers as $controllerName) {
 
 $request = $_SERVER['REQUEST_URI'];
 $method = $_SERVER['REQUEST_METHOD'];
-$curr = $routes["$request::$method"] ?? null;
+$curr = null;
+$vals = [];
+
+foreach ($routes as $path => $route) {
+  $r = explode("::", $path)[0];
+  $matches = [];
+  if (preg_match($r, $request, $matches) && $method === $route->http_method) {
+    $curr = $route;
+    foreach ($matches as $key => $match) {
+      if (str_contains($route->path, "{$key}")) {
+        $vals[$key] = $match;
+      }
+    }
+    
+
+    break;
+  }
+}
+
+
+
 if ($curr === null) {
   echo '404';
 } else {
   $helpers = new Helpers($routes);
-  
+
   $action = $curr->action;
   $controller = $curr->controller;
-  $controller->$action();
+  $controller->$action($vals);
 }
 

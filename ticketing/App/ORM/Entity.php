@@ -58,11 +58,13 @@ class Entity {
       $this->id = null;
     }
 
-
-
     $this->columns = $cols;
     $this->relationsManyToOne = $relationsManyToOne;
     $this->relationsManyToMany = $relationsManyToMany;
+
+    if (!empty($data)) {
+      $this->hydrate($data);
+    }
   }
 
   public function save(): void {
@@ -300,14 +302,22 @@ class Entity {
 
     foreach ($this->relationsManyToOne as $relation) {
       $relationName = $relation->getName();
-      $relationClass = $relation->getName();
-      if (isset($data[$relationName])) {
-        $relationInstance = new $relationClass();
-        $relationInstance->hydrate($data[$relationName], $circularReferences, $this);
+      $attrs = $relation->getAttributes(ManyToOne::class);
+      $manyToOne = $attrs[0]->newInstance();
+
+      $relationClass = $manyToOne->targetEntity;
+
+
+      if (isset($data['id_' . $relationName])) {
+        $sql = "SELECT * FROM $relationName WHERE id = :id LIMIT 1";
+        $stmt = Manager::getInstance()->prepare($sql);
+        $stmt->bindValue(":id", $data["id_". $relationName]);
+        $stmt->execute();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        $relationInstance = new $relationClass($row);
         $method = "set" . ucfirst($relationName);
-        if (method_exists($this, $method)) {
-          $this->$method($relationInstance);
-        }
+        $this->$method($relationInstance);
       }
     }
 

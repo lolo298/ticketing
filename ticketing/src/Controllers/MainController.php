@@ -73,4 +73,9 @@ class MainController extends AbstractController {
     var_dump('login');
   }
   
+  #[Route('/ticket/{id}','GET','ticket')]
+  public function ticket(array $params): void {
+    $ticket = $this->ticketManager->getTicket($params['id']);
+    $this->render("ticket", ['ticket' => $ticket]);
+  }
 }

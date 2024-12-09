@@ -1,0 +1,51 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Home
+{% endblock %}
+
+{% block script %}
+	<script src="/public/js/index.js"></script>
+{% endblock %}
+
+
+{% block content %}    
+
+	<button id="newTicketBtn">nouveau ticket</button>
+	<table>
+		<tr>
+			<th>N°</th>
+			<th>Sujet</th>
+			<th>Creation</th>
+			<th>Mise a jour</th>
+			<th>Demande</th>
+			<th>Etat</th>
+			<th></th>
+		</tr>
+
+		{% for ticket in tickets %}
+			<tr>
+				<td>
+					<a href="{{ path("ticket", {'id':ticket.id}) }}">{{ ticket.id }}</a>
+				</td>
+				<td>{{ ticket.subject }}</td>
+				<td>{{ ticket.creationDate|date("d/M/Y H:m:s") }}</td>
+				<td>{{ ticket.updateDate|date("d/M/Y H:m:s") }}</td>
+				<td>{{ ticket.description }}</td>
+				<td>{{ ticket.state }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	<dialog id="newTicketModal">
+		<form method="POST" action="{{ path("newTicket") }}">
+
+			<label for="subject">Sujet</label>
+			<input type="text" name="subject" id="subject">
+
+			<label for="description">Description</label>
+			<textarea name="description" id="description" cols="30" rows="10"></textarea>
+
+			<button type="submit">Envoyer</button>
+			<input type="reset"/>
+		</form>
+	</dialog>
+{% endblock %}

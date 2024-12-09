@@ -1,0 +1,17 @@
+{
+    "name": "lolo/ticketing",
+    "autoload": {
+        "psr-4": {
+            "Lolo\\Ticketing\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Lolom",
+            "email": "lorenzoaoulini@gmail.com"
+        }
+    ],
+    "require": {
+        "twig/twig": "^3.16"
+    }
+}

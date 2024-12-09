@@ -3,7 +3,8 @@ namespace Ticketing\Models;
 
 use ORM;
 
-class Priority extends ORM\Entity {
+#[ORM\Serializable(target: 'name')]
+class Priority extends ORM\SerializableEntity {
   #[ORM\Id]
   private int $id;
   #[ORM\Column(type:ORM\ColumnType::VARCHAR)]

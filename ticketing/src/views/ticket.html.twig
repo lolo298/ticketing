@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ticket n°{{ ticket.id }}{% endblock %}
+{% block content %}
+    <h2>Ticket n°{{ ticket.id }}</h2>
+    <p>Sujet: {{ ticket.subject }}</p>
+    <p>Description: {{ ticket.description }}</p>
+    <p>Creation: {{ ticket.creationDate.format("d/M/Y H:m:s") }}</p>
+    <p>Mise a jour: {{ ticket.updateDate.format("d/M/Y H:m:s") }}</p>
+    <p>Demandeur: {{ ticket.utilisateur.Login }}</p>
+    <p>Type: {{ ticket.type }}</p>
+    <p>Priorité: {{ ticket.priority }}</p>
+    <p>Etat: {{ ticket.state }}</p>
+{% endblock %}

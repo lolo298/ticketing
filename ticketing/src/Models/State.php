@@ -1,11 +1,17 @@
 <?php
 namespace Ticketing\Models;
-use ORM;
+use ORM\Column;
+use ORM\Id;
+use ORM\ColumnType;
+use ORM\Serializable;
+use ORM\SerializableEntity;
 
-class State extends ORM\Entity {
-  #[ORM\Id]
+#[Serializable(target: 'name')]
+class State extends SerializableEntity {
+  #[Id]
   private int $id;
-  #[ORM\Column(type:ORM\ColumnType::VARCHAR)]
+
+  #[Column(type:ColumnType::VARCHAR)]
   private string $name;
   public function getId(): int { return $this->id; }
   public function getName(): string { return $this->name; }

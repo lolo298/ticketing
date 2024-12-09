@@ -34,14 +34,7 @@ class MainController extends AbstractController {
 
 
   #[Route('/', 'GET', 'home')]
-  public function home(): void {
-    try{
-      $bdd = BDD::getInstance();
-    } catch (\PDOException $e) {
-      echo 'Connexion échouée : ' . $e->getMessage();
-      die();
-    }
-    
+  public function home(): void {    
     $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC');
     // $ticket->save();
     
@@ -76,6 +69,12 @@ class MainController extends AbstractController {
   #[Route('/ticket/{id}','GET','ticket')]
   public function ticket(array $params): void {
     $ticket = $this->ticketManager->getTicket($params['id']);
+    if ($ticket->getId() === null) {
+      header("Location: /");
+      die();
+     }
+
+
     $this->render("ticket", ['ticket' => $ticket]);
   }
 }

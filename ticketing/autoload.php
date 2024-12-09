@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/vendor/autoload.php';
+
 spl_autoload_register(function ($class) {
   $class = str_replace('\\', '/', $class);
 
@@ -6,7 +8,7 @@ spl_autoload_register(function ($class) {
     require_once __DIR__ .'/App/'. $class .'.php';
   } else {
     $class = str_replace('Ticketing/', '', $class);
-    $path = find_file(__DIR__ .'/src', $class . '.php');
+    $path = find_file(__DIR__ , $class . '.php');
     if ($path !== null && file_exists($path)) {
       require_once $path;
   }

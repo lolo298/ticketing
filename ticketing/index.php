@@ -1,8 +1,8 @@
 <?php
+require_once __DIR__ . '/autoload.php';
 
 use Runtime\Helpers;
 use Runtime\Route;
-require_once __DIR__ . '/autoload.php';
 
 //scan existing controllers
 function scan_dir($dir) {
@@ -43,10 +43,9 @@ foreach($controllers as $controllerName) {
   }
 
   $controller = $controllerReflect->newInstanceArgs($params);
+  $controller::initTwig();
 
 
-
-  // $controller = new $controllerName();
   $reflect = new ReflectionClass( $controller);
   $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
   foreach ($methods as $method) {
@@ -100,7 +99,7 @@ foreach ($routes as $path => $route) {
 if ($curr === null) {
   echo '404';
 } else {
-  $helpers = new Helpers($routes);
+  $GLOBALS['routes'] = $routes;
 
   $action = $curr->action;
   $controller = $curr->controller;

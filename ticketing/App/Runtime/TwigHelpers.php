@@ -6,6 +6,7 @@ class TwigHelpers extends \Twig\Extension\AbstractExtension {
   {
       return [
           new \Twig\TwigFunction('path', [$this, 'getPath']),
+          new \Twig\TwigFunction('routes', [$this, 'routes']),
       ];
   }
 
@@ -23,5 +24,9 @@ class TwigHelpers extends \Twig\Extension\AbstractExtension {
     }
 
     return '';
+  }
+
+  function routes(): array {
+    return  array_map(fn($r) => $r->name, $GLOBALS['routes']);
   }
 }

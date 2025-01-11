@@ -27,6 +27,8 @@
 
 
 		{% block script %}
+			<script type="application/json" id="routes">{{ routes()|json_encode|raw }}</script>
+			<script src="/public/js/dataParser.js"></script>
 		{% endblock %}
 	</body>
 

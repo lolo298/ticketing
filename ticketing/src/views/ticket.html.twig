@@ -2,13 +2,24 @@
 
 {% block title %}Ticket n°{{ ticket.id }}{% endblock %}
 {% block content %}
+    <form id="editForm">
     <h2>Ticket n°{{ ticket.id }}</h2>
-    <p>Sujet: {{ ticket.subject }}</p>
-    <p>Description: {{ ticket.description }}</p>
+    <label>Sujet: <input name="subject" value="{{ ticket.subject }}" /></label>
+    <label>Description: <input name="description" value="{{ ticket.description }}" /></label>
     <p>Creation: {{ ticket.creationDate.format("d/M/Y H:m:s") }}</p>
     <p>Mise a jour: {{ ticket.updateDate.format("d/M/Y H:m:s") }}</p>
     <p>Demandeur: {{ ticket.utilisateur.Login }}</p>
     <p>Type: {{ ticket.type }}</p>
     <p>Priorité: {{ ticket.priority }}</p>
     <p>Etat: {{ ticket.state }}</p>
+
+    <button type="submit">Enregistrer</button>
+    </form>
+
+{% endblock %}
+
+{% block script %}
+    <script type="application/json" id="data">{{ {'id': ticket.id}|json_encode|raw}}</script>
+    {{ parent() }}
+    <script src="/public/js/ticket.js"></script>
 {% endblock %}

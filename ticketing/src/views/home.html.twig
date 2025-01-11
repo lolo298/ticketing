@@ -4,11 +4,12 @@
 {% endblock %}
 
 {% block script %}
+	{{ parent() }}
 	<script src="/public/js/index.js"></script>
 {% endblock %}
 
 
-{% block content %}    
+{% block content %}
 
 	<button id="newTicketBtn">nouveau ticket</button>
 	<table>
@@ -32,6 +33,17 @@
 				<td>{{ ticket.updateDate|date("d/M/Y H:m:s") }}</td>
 				<td>{{ ticket.description }}</td>
 				<td>{{ ticket.state }}</td>
+				<td>
+					<div class="context-menu">
+						<i class="fa-solid fa-bars"></i>
+						<div class="context-menu-content">
+							<a href="{{ path("ticket", {'id':ticket.id}) }}">Voir</a>
+							<a href="{{ path("deleteTicket", {'id':ticket.id}) }}">Supprimer</a>
+						</div>
+					</div>
+
+				</td>
+
 			</tr>
 		{% endfor %}
 	</table>

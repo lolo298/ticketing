@@ -74,7 +74,25 @@ class MainController extends AbstractController {
       die();
      }
 
-
     $this->render("ticket", ['ticket' => $ticket]);
+  }
+
+  #[Route('/api/edit/ticket/{id}','POST','updateTicket')]
+  public function updateTicket(array $params): void {
+    $ticket = $this->ticketManager->getTicket($params['id']);
+    if ($ticket->getId() === null) {
+      header("Location: /");
+      die();
+     }
+
+    $this->ticketManager->getTicket($params['id']);
+    $ticket->hydrate($_POST);
+
+    try {  
+      $ticket->save();
+    } catch (\Exception $e) {
+      http_response_code(500);
+      echo $e->getMessage();
+    }
   }
 }

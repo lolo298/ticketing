@@ -8,15 +8,15 @@ class Ticket extends ORM\Entity {
   #[ORM\Id]
   private ?int $id = null;
 
-  #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:self::class)]
   private $utilisateur;
-  #[ORM\ManyToOne(targetEntity: Type::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Type::class, inversedBy:self::class)]
   private $type;
-  #[ORM\ManyToOne(targetEntity: Priority::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Priority::class, inversedBy:self::class)]
   private $priority;
-  #[ORM\ManyToOne(targetEntity: State::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: State::class, inversedBy:self::class)]
   private $state;
-  #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Traitement::class, inversedBy: Traitement::class)]
   private $traitements;
   #[ORM\Column(type:ORM\ColumnType::VARCHAR)]
   private ?string $subject = null;
@@ -35,7 +35,8 @@ class Ticket extends ORM\Entity {
   public function getType(): Type { return $this->type; }
   public function getPriority(): Priority { return $this->priority; }
   public function getState(): State { return $this->state; }
-  public function getTraitements(): int { return $this->traitements; }
+  /** @return Traitement[] */
+  public function getTraitements(): array { return $this->traitements; }
   public function getSubject(): ?string { return $this->subject; }
   public function getDescription(): ?string { return $this->description; }
   public function getFilepath(): ?string { return $this->filepath; }
@@ -48,7 +49,8 @@ class Ticket extends ORM\Entity {
   public function setType(Type $type): void { $this->type = $type; }
   public function setPriority(Priority $priority): void { $this->priority = $priority; }
   public function setState(State $state): void { $this->state = $state; }
-  public function setTraitements(int $traitements): void { $this->traitements = $traitements; }
+  /** @param Traitement[] $traitements */
+  public function setTraitements(array $traitements): void { $this->traitements = $traitements; }
   public function setSubject(string $subject): void { $this->subject = $subject; }
   public function setDescription(string $description): void { $this->description = $description; }
   public function setFilepath(string $filepath): void { $this->filepath = $filepath; }

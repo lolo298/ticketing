@@ -1,4 +1,5 @@
 <?php
+
 namespace Ticketing\Repositories;
 
 use Runtime\Manager;
@@ -20,9 +21,13 @@ class TypeManager extends Manager {
   }
 
   /** @return Type[] */
-  public function getPriorities(int $limit, int $offset): array {
-    $query = $this->getInstance()->prepare('SELECT * FROM type LIMIT :limit OFFSET :offset');
-    $query->execute(['limit'=> $limit,'offset'=> $offset]);
+  public function getTypes(int $limit = 0, int $offset = 0): array {
+    $query = $this->getInstance()->prepare('SELECT * FROM type ' . ($limit > 0 ? 'LIMIT :limit OFFSET :offset' : ''));
+    if ($limit > 0) {
+      $query->bindValue(':limit', $limit, \PDO::PARAM_INT);
+      $query->bindValue(':offset', $offset, \PDO::PARAM_INT);
+    }
+    $query->execute();
     $res = $query->fetchAll(\PDO::FETCH_ASSOC);
     $types = [];
     foreach ($res as $data) {
@@ -31,5 +36,4 @@ class TypeManager extends Manager {
     }
     return $types;
   }
-
 }

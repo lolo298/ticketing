@@ -2,11 +2,18 @@
 
 namespace Runtime;
 
-class AbstractController {
+class AbstractController implements IAbstractController {
   private static ?\Twig\Environment $_twig = null;
 
   private static $VIEWS_PATH = __DIR__ . '/../../src/views';
   private static $MODELS_PATH = __DIR__ . '/../../src/models';
+
+  protected static Session $session;
+
+  public static function init(): void {
+    self::initTwig();
+    self::initSession();
+  }
 
   public array $routes = [];
 
@@ -23,13 +30,27 @@ class AbstractController {
       return;
     }
 
+    $data['session'] = self::$session;
     echo $wrapper->render($data);
   }
 
+  private static function initSession(): void {
+    self::$session = Session::getInstance();
+  }
 
-  public static function initTwig(): void {
+  private static function initTwig(): void {
     if (self::$_twig === null) {
       $loader = new \Twig\Loader\FilesystemLoader(self::$VIEWS_PATH);
+
+      $namespaces = glob(self::$VIEWS_PATH . '/*', GLOB_ONLYDIR);
+      foreach ($namespaces as $namespace) {
+        if ($namespace === '.' || $namespace === '..') {
+          continue;
+        }
+        $loader->addPath($namespace, basename($namespace));
+      }
+
+
       self::$_twig = new \Twig\Environment($loader, [
         'debug' => true
       ]);

@@ -10,7 +10,7 @@ class Role extends ORM\SerializableEntity {
   private string $name;
 
   /** @var Utilisateur[] */
-  #[ORM\ManyToMany(targetEntity: Utilisateur::class, mainEntity: Utilisateur::class)]
+  #[ORM\ManyToMany(targetEntity: self::class, mainEntity: Utilisateur::class)]
   private array $utilisateurs;
   public function getId(): int { return $this->id; }
   public function getName(): string { return $this->name; }

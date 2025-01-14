@@ -2,4 +2,6 @@ const routes = document.querySelector("script#routes");
 const routesJSON = JSON.parse(routes.textContent);
 
 const data = document.querySelector("script#data");
-const dataJSON = JSON.parse(data.textContent);
+if (data){
+  window.dataJSON = JSON.parse(data.textContent);
+}

@@ -1,0 +1,16 @@
+{% extends "base.html.twig" %}
+
+
+{% block script %}
+	{{ parent() }}
+{% endblock %}
+
+
+{% block content %}
+
+<div>
+
+  {% block auth %}{% endblock %}
+</div>
+
+{% endblock %}

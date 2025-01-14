@@ -11,6 +11,10 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+main {
+  padding: 2rem;
+}
+
 .navbar {
   position: sticky;
   top: 0;
@@ -60,7 +64,7 @@ th {
   color: var(--primary-text-color);
 }
 
-#newTicketModal form {
+.modal form {
   display: flex;
   flex-direction: column;
   gap: 1rem;

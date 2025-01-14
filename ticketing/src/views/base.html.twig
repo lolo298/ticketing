@@ -16,9 +16,13 @@
 		<nav class="navbar">
 			<h1>Ticketing</h1>
 			<ul>
-				<li><a href="index.html">Home</a></li>
-				<li><a href="about.html">About</a></li>
-				<li><a href="contact.html">Contact</a></li>
+			{% if session.isConnected() %}
+				<li><a href="{{ path('home')}}">Home</a></li>
+				{% if session.isAdmin() %}
+					<li><a href="{{ path('users')}}">Users</a></li>
+				{% endif %}
+				<li><a href="{{ path('logout')}}">Logout</a></li>
+				{% endif %}
 			</ul>
 		</nav>
 		<main>

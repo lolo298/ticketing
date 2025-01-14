@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/autoload.php';
 
-use Runtime\Helpers;
 use Runtime\Route;
 
 //scan existing controllers
@@ -22,58 +21,67 @@ function scan_dir($dir) {
   return $controllers;
 }
 
-$controllers = scan_dir(__DIR__ . "/src/Controllers");
-$routes = [];
+function prepareConstructs(ReflectionClass $classReflect) {
+  $constructParams = $classReflect->getConstructor()->getParameters();
 
-//parse routes availables
-foreach($controllers as $controllerName) {
-  $controllerName = "Ticketing\\Controllers\\" . $controllerName;
+  if (count($constructParams) === 0) {
+    return $classReflect->newInstanceArgs();
+  }
 
-
-  $controllerReflect = new \ReflectionClass($controllerName);
-  $constructParams = $controllerReflect->getConstructor()->getParameters();
   $params = [];
+
   foreach ($constructParams as $constructParam) {
     $type = $constructParam->getType();
     if ($type !== null) {
       $className = $type->getName();
-      $instance = new $className();
+      $instance = prepareConstructs(new ReflectionClass($className));
+      if ($instance instanceof Runtime\Singleton) {
+        $instance = $instance::getInstance();
+      }
       $params[$constructParam->getName()] = $instance;
     }
   }
+  return $classReflect->newInstanceArgs($params);
+}
 
-  $controller = $controllerReflect->newInstanceArgs($params);
-  $controller::initTwig();
+
+$controllers = scan_dir(__DIR__ . "/src/Controllers");
+$routes = [];
+
+//parse routes availables
+foreach ($controllers as $controllerName) {
+  $controllerName = "Ticketing\\Controllers\\" . $controllerName;
+  $controllerReflect = new \ReflectionClass($controllerName);
+  $controller = prepareConstructs($controllerReflect);
+  $controller::init();
 
 
-  $reflect = new ReflectionClass( $controller);
+  $reflect = new ReflectionClass($controller);
   $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
   foreach ($methods as $method) {
     $attrs = $method->getAttributes(Route::class);
     if (count($attrs) > 0) {
-        $route = $attrs[0]->newInstance();
-        $name = $route->getName();
-        $path = $route->getPath();
-        $http_method = $route->getMethod();
+      $route = $attrs[0]->newInstance();
+      $name = $route->getName();
+      $path = $route->getPath();
+      $http_method = $route->getMethod();
 
-        $data = new \Runtime\RouteData();
-        $data->name = $name;
-        $data->path = $path;
-        $data->http_method = $http_method;
-        $data->action = $method->getName();
-        $data->controller = $controller;
-        $regexPath = preg_replace('/\{(.+)\}/', '(?<$1>(\w+))', $path);
-        $regexPath = str_replace('/', '\/', $regexPath);
-        $regexPath = '/^' . $regexPath . '$/';
-        $routes[$regexPath."::".$http_method] = $data;
+      $data = new \Runtime\RouteData();
+      $data->name = $name;
+      $data->path = $path;
+      $data->http_method = $http_method;
+      $data->action = $method->getName();
+      $data->controller = $controller;
+      $regexPath = preg_replace('/\{(.+)\}/', '(?<$1>(\w+))', $path);
+      $regexPath = str_replace('/', '\/', $regexPath);
+      $regexPath = '/^' . $regexPath . '$/';
+      $routes[$regexPath . "::" . $http_method] = $data;
     }
   }
-  
 }
 
 
-
-$request = $_SERVER['REQUEST_URI'];
+$request = explode('?', $_SERVER['REQUEST_URI'])[0];
 $method = $_SERVER['REQUEST_METHOD'];
 $curr = null;
 $vals = [];
@@ -88,7 +96,7 @@ foreach ($routes as $path => $route) {
         $vals[$key] = $match;
       }
     }
-    
+
 
     break;
   }
@@ -101,8 +109,12 @@ if ($curr === null) {
 } else {
   $GLOBALS['routes'] = $routes;
 
-  $action = $curr->action;
-  $controller = $curr->controller;
-  $controller->$action($vals);
-}
+  try {
 
+    $action = $curr->action;
+    $controller = $curr->controller;
+    $controller->$action($vals);
+  } catch (\Exception $e) {
+    echo $e->getMessage();
+  }
+}

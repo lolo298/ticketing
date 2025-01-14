@@ -1,11 +1,10 @@
 <?php
+
 namespace Ticketing\Controllers;
 
 use Runtime\AbstractController;
 use Runtime\Route;
-use Runtime\BDD;
 use Ticketing\Models\Ticket;
-use Ticketing\Models\Utilisateur;
 use Ticketing\Repositories\RoleManager;
 use Ticketing\Repositories\TypeManager;
 use Ticketing\Repositories\UtilisateurManager;
@@ -15,16 +14,12 @@ use Ticketing\Repositories\TicketManager;
 
 class MainController extends AbstractController {
 
-  private UtilisateurManager $userManager;
-  private RoleManager $roleManager;
   private TypeManager $typeManager;
   private PriorityManager $priorityManager;
   private StateManager $stateManager;
   private TicketManager $ticketManager;
 
-  public function __construct(UtilisateurManager $utilisateurManager, RoleManager $roleManager, TypeManager $typeManager, PriorityManager $priorityManager, StateManager $stateManager, TicketManager $ticketManager) {
-    $this->userManager = $utilisateurManager;
-    $this->roleManager = $roleManager;
+  public function __construct(TypeManager $typeManager, PriorityManager $priorityManager, StateManager $stateManager, TicketManager $ticketManager) {
     $this->typeManager = $typeManager;
     $this->priorityManager = $priorityManager;
     $this->stateManager = $stateManager;
@@ -34,61 +29,76 @@ class MainController extends AbstractController {
 
 
   #[Route('/', 'GET', 'home')]
-  public function home(): void {    
-    $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC');
-    // $ticket->save();
-    
-    $this->render('home', ['tickets' => $tickets]);
+  public function home(): void {
+    if (self::$session->isConnected() === false) {
+      header('Location: /login');
+      die();
+    }
+    $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC', extra: 'id_utilisateur = ' . self::$session->getUser()->getId());
+    $types = $this->typeManager->getTypes();
+
+    $this->render('home', ['tickets' => $tickets, 'types' => $types]);
   }
 
-  #[Route('/api/newTicket', 'POST','newTicket')]
+  #[Route('/api/newTicket', 'POST', 'newTicket')]
   public function newTicket() {
-    $ticket = new Ticket($_POST);
-    $user = $this->userManager->getUser($_COOKIE['user'] ?? 1);
-    $type = $this->typeManager->getType(1);
+    if (self::$session->isConnected() === false) {
+      header('Location: /login');
+      die();
+    }
+
+    $data = $_POST;
+
+    $user = self::$session->getUser();
+    $type = $this->typeManager->getType((int) $data['type']);
+    unset($data['type']);
     $priority = $this->priorityManager->getPriority(1);
     $state = $this->stateManager->getState(1);
 
+    $ticket = new Ticket($data);
     $ticket->setUtilisateur($user);
     $ticket->setType($type);
     $ticket->setPriority($priority);
     $ticket->setState($state);
+    $ticket->setTraitements([]);
 
     $ticket->save();
 
-    header('Location: ' . $_SERVER['HTTP_REFERER']);
-    
-
+    header('Location: ' . explode('?', $_SERVER['HTTP_REFERER'])[0]);
   }
 
-  #[Route('/login', 'GET', 'login')]
-  public function login(): void {
-    var_dump('login');
-  }
-  
-  #[Route('/ticket/{id}','GET','ticket')]
+  #[Route('/ticket/{id}', 'GET', 'ticket')]
   public function ticket(array $params): void {
+    if (self::$session->isConnected() === false) {
+      header('Location: /login');
+      die();
+    }
+
     $ticket = $this->ticketManager->getTicket($params['id']);
     if ($ticket->getId() === null) {
       header("Location: /");
       die();
-     }
+    }
 
     $this->render("ticket", ['ticket' => $ticket]);
   }
 
-  #[Route('/api/edit/ticket/{id}','POST','updateTicket')]
+  #[Route('/api/edit/ticket/{id}', 'POST', 'updateTicket')]
   public function updateTicket(array $params): void {
+    if (self::$session->isConnected() === false) {
+      header('Location: /login');
+      die();
+    }
     $ticket = $this->ticketManager->getTicket($params['id']);
     if ($ticket->getId() === null) {
       header("Location: /");
       die();
-     }
+    }
 
     $this->ticketManager->getTicket($params['id']);
     $ticket->hydrate($_POST);
 
-    try {  
+    try {
       $ticket->save();
     } catch (\Exception $e) {
       http_response_code(500);

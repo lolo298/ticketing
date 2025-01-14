@@ -1,18 +1,35 @@
+function InitModals() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        console.log("setting up modal for", modal);
 
-const newTicketBtn = document.getElementById('newTicketBtn');
-const newTicketModal = document.getElementById('newTicketModal');
-const resetNewTicketModal = document.querySelector('#newTicketModal input[type="reset"]');
+        const openBtnAttr = modal.getAttribute('data-trigger');
+        const closeBtnAttr = modal.getAttribute('data-close');
 
-newTicketBtn.addEventListener('click', () => {
-    newTicketModal.showModal();
-});
+        console.log("openBtnAttr", openBtnAttr);
+        console.log("closeBtnAttr", closeBtnAttr);
 
-resetNewTicketModal.addEventListener('click', () => {
-  newTicketModal.close();
-});
+        
+        const openBtn = document.querySelector(openBtnAttr);
+        const closeBtn = document.querySelector(closeBtnAttr);
 
-newTicketModal.addEventListener('click', (e) => {
-    if (e.target === newTicketModal) {
-        newTicketModal.close();
-    }
-});
+        console.log("openBtn", openBtn);
+        console.log("closeBtn", closeBtn);
+
+        openBtn.addEventListener('click', () => {
+            modal.showModal();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.close();
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.close();
+            }
+        });
+    });
+}
+
+InitModals();

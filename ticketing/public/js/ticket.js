@@ -1,29 +1,17 @@
+const form = document.querySelector("#editForm");
 
-const form = document.querySelector('#editForm');
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    const formData = new FormData(form);
 
-  const formData = new FormData(form);
-/** @var routesJSON object<string, string> */
+    const [route, method] = window.getRoute("updateTicket");
+    const response = await fetch(route, {
+        method,
+        body: formData,
+    });
 
-const route = Object.entries(routesJSON).find(([rpath, name]) => {
-  return name === "updateTicket"
-});
-
-console.log(route);
-
-const [rpath, method] = route[0].split('::');
-
-const parsedRoute = rpath.toString().replaceAll(/\\\//g, "*").replaceAll(/[/\\^$]/g, "").replaceAll("*", "/").replace(/(\(.+\))/g, dataJSON.id);
-
-const response = await fetch(parsedRoute, {
-  method,
-  body: formData
-});
-
-if (response.ok) {
-  console.log('Ticket updated');
-} 
-
+    if (response.ok) {
+        console.log("Ticket updated");
+    }
 });

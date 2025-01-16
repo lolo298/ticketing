@@ -94,10 +94,10 @@ class MainController extends AbstractController {
       die();
     }
 
-    $this->render("ticket", ['ticket' => $ticket]);
+    $this->render("ticket", ['ticket' => $ticket, 'states' => $this->stateManager->getStates(), 'types' => $this->typeManager->getTypes(), 'priorities' => $this->priorityManager->getPriorities()]);
   }
 
-  #[Route('/api/edit/ticket/{id}', 'POST', 'updateTicket')]
+  #[Route('/ticket/{id}/edit', 'POST', 'updateTicket')]
   public function updateTicket(array $params): void {
     if (self::$session->isConnected() === false) {
       header('Location: /login');
@@ -109,7 +109,6 @@ class MainController extends AbstractController {
       die();
     }
 
-    $this->ticketManager->getTicket($params['id']);
     $ticket->hydrate($_POST);
 
     try {
@@ -117,6 +116,36 @@ class MainController extends AbstractController {
     } catch (\Exception $e) {
       http_response_code(500);
       echo $e->getMessage();
+    }
+  }
+
+  
+  #[Route('/ticket/{id}/edit', 'DELETE', 'closeTicket')]
+  public function closeTicket(array $params): void {
+    if (self::$session->isConnected() === false) {
+      header('Location: /login');
+      die();
+    }
+    $ticket = $this->ticketManager->getTicket((int)$params['id']);
+    if ($ticket->getId() === null) {
+      header("Location: /");
+      die();
+    }
+
+    $closedState = $this->stateManager->findState('CLOSED');
+
+    if ($closedState === null) {
+      throw new \Exception('State CLOSED not found');
+    }
+
+    $ticket->setState($closedState);
+
+
+    try {
+      $ticket->save();
+    } catch (\Exception $e) {
+      http_response_code(500);
+      // echo $e->getMessage();
     }
   }
 }

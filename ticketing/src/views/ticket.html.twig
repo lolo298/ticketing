@@ -1,33 +1,63 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ticket n°{{ ticket.id }}{% endblock %}
+{% block title %}Ticket n°{{ ticket.id }}
+{% endblock %}
 {% block content %}
-    <form id="editForm">
-    <h2>Ticket n°{{ ticket.id }}</h2>
-    <label>Sujet: <input name="subject" value="{{ ticket.subject }}" /></label>
-    <label>Description: <input name="description" value="{{ ticket.description }}" /></label>
-    <p>Creation: {{ ticket.creationDate.format("d/M/Y H:m:s") }}</p>
-    <p>Mise a jour: {{ ticket.updateDate.format("d/M/Y H:m:s") }}</p>
-    <p>Demandeur: {{ ticket.utilisateur.Login }}</p>
-    <p>Type: {{ ticket.type }}</p>
-    <p>Priorité: {{ ticket.priority }}</p>
-    <p>Etat: {{ ticket.state }}</p>
+	<form id="editForm">
+		<h2>Ticket n°{{ ticket.id }}</h2>
+		<label>Sujet:
+			<input name="subject" value="{{ ticket.subject }}"/></label>
+		<label>Description:
+			<input name="description" value="{{ ticket.description }}"/></label>
+		<p>Creation:
+			{{ ticket.creationDate.format("d/M/Y H:m:s") }}</p>
+		<p>Mise a jour:
+			{{ ticket.updateDate.format("d/M/Y H:m:s") }}</p>
+		<p>Demandeur:
+			{{ ticket.utilisateur.Login }}</p>
+		<label>Type:
+			<select name="type">
+				{% for type in types %}
+					<option value="{{ type.id }}" {% if ticket.type.id == type.id %} selected {% endif %}>{{ type }}</option>
+				{% endfor %}
+			</select>
+		</label>
 
-    <button type="submit">Enregistrer</button>
-    </form>
+		<label>Priorité:
+			<select name="priority">
+				{% for priority in priorities %}
+					<option value="{{ priority.id }}" {% if ticket.priority.id == priority.id %} selected {% endif %}>{{ priority }}</option>
+				{% endfor %}
+			</select>
+		</label>
 
-    <div>
-    <h2>Chat</h2>
-    
-    
-    
-    
-    </div>
+
+		<label>Etat:
+			<select name="state">
+				{% for state in states %}
+					<option value="{{ state.id }}" {% if ticket.state.id == state.id %} selected {% endif %}>{{ state }}</option>
+				{% endfor %}
+			</select>
+		</label>
+
+		<button type="submit">Enregistrer</button>
+	</form>
+
+	<div>
+		<h2>Chat</h2>
+
+
+	</div>
 
 {% endblock %}
 
 {% block script %}
-    <script type="application/json" id="data">{{ {'id': ticket.id}|json_encode|raw}}</script>
-    {{ parent() }}
-    <script src="/public/js/ticket.js"></script>
+	<script type="application/json" id="data">{{ {'id': ticket.id}|json_encode|raw}}</script>
+	{{ parent() }}
+	<script src="/public/js/ticket.js"></script>
+{% endblock %}
+
+{% block stylesheet %}
+	{{ parent() }}
+	<link rel="stylesheet" href="/public/css/ticket.css">
 {% endblock %}

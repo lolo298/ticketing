@@ -5,7 +5,8 @@
 
 {% block script %}
 	{{ parent() }}
-	<script src="/public/js/index.js"></script>
+	<script src="/public/js/tickets.js"></script>
+
 {% endblock %}
 
 
@@ -31,14 +32,16 @@
 				<td>{{ ticket.subject }}</td>
 				<td>{{ ticket.creationDate|date("d/M/Y H:m:s") }}</td>
 				<td>{{ ticket.updateDate|date("d/M/Y H:m:s") }}</td>
-				<td>{{ ticket.description }}</td>
+				<td class="desc">{{ ticket.description }}</td>
 				<td>{{ ticket.state }}</td>
 				<td>
 					<div class="context-menu">
 						<i class="fa-solid fa-bars"></i>
 						<div class="context-menu-content">
 							<a href="{{ path("ticket", {'id':ticket.id}) }}">Voir</a>
-							<a href="{{ path("deleteTicket", {'id':ticket.id}) }}">Supprimer</a>
+							{% if ticket.state != "CLOSED" %}
+								<a class="closeTicket" data-id="{{ticket.id}}">Cloturer</a>
+							{% endif %}
 						</div>
 					</div>
 

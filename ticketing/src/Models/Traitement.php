@@ -8,7 +8,7 @@ class Traitement extends ORM\Entity {
   #[ORM\Id]
   private ?int $id = null;
 
-  #[ORM\ManyToOne(targetEntity: Ticket::class, inversedBy:"tickets")]
+  #[ORM\ManyToOne(targetEntity: Ticket::class, inversedBy: self::class)]
   private $ticket;
   #[ORM\Column(type:ORM\ColumnType::VARCHAR)]
   private ?string $response = null;

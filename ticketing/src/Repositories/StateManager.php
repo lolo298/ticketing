@@ -21,7 +21,7 @@ class StateManager extends Manager {
 
   /** @return State[] */
   public function getStates(int $limit = 0, int $offset = 0, string $sortBy = 'id', string $sortDirection = 'ASC', string $extra = ""): array {
-    return $this->getValues('states', State::class, $limit, $offset, $sortBy, $sortDirection, $extra);
+    return $this->getValues('state', State::class, $limit, $offset, $sortBy, $sortDirection, $extra);
   }
 
   public function findState(string $name): ?State {

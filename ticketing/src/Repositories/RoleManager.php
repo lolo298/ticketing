@@ -20,7 +20,7 @@ class RoleManager extends Manager {
   }
 
   /** @return Role[] */
-  public function getRoles(int $limit, int $offset): array {
+  public function getRoles(int $limit = 10, int $offset = 0): array {
     $query = $this->getInstance()->prepare('SELECT * FROM role LIMIT :limit OFFSET :offset');
     $query->bindValue(':limit', $limit, \PDO::PARAM_INT);
     $query->bindValue(':offset', $offset, \PDO::PARAM_INT);

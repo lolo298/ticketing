@@ -9,14 +9,11 @@ form.addEventListener('submit', async (e) => {
 
 const route = Object.entries(routesJSON).find(([rpath, name]) => {
   return name === "updateTicket"
-
 });
 
 console.log(route);
 
 const [rpath, method] = route[0].split('::');
-
-///^\/api\/edit\/ticket\/(?<id>(\w+))$/
 
 const parsedRoute = rpath.toString().replaceAll(/\\\//g, "*").replaceAll(/[/\\^$]/g, "").replaceAll("*", "/").replace(/(\(.+\))/g, dataJSON.id);
 

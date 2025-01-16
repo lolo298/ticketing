@@ -1,0 +1,24 @@
+{% extends "@auth/auth.html.twig" %}
+
+{% block title %}Register{% endblock %}
+
+{% block auth %}
+  <form action="{{ path('register') }}" method="post">
+    <h2>Register</h2>
+    {% if error %}
+      <p>{{ error }}</p>
+    {% endif %}
+    <label for="login">login</label>
+    <input type="text" id="login" name="login" value="{{ last_login }}" required autofocus>
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+    <select name="role" id="role">
+    {% for role in roles %}
+      <option value="{{ role.id }}">{{ role }}</option>
+    {% endfor %}
+    </select>
+    <button type="submit">Register</button>
+  </form>
+    <a href="{{path('login')}}">Login</a>
+
+{% endblock %}

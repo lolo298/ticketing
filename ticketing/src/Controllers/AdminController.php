@@ -39,14 +39,9 @@ class AdminController extends AbstractController {
   }
 
 
-  #[Route('/admin/newUser', 'POST', 'newUser')]
+  #[Route('/newUser', 'POST', 'newUser')]
   public function newUser(): void {
     $data = $_POST;
-
-    if (!self::$session->isConnected() || !self::$session->isAdmin()) {
-      header('Location: /login');
-      die();
-    }
 
     if ($this->userManager->findUser($data['login'])) {
 
@@ -61,8 +56,34 @@ class AdminController extends AbstractController {
 
     $user = new Utilisateur($data);
     $user->setRole($role);
-    $user->setActif(true);
+    $user->setActif(false);
     $user->save();
     header('Location: ' . explode('?', $_SERVER['HTTP_REFERER'])[0]);
   }
+
+  #[Route('/admin/user/{id}', 'PATCH', 'editUser')]
+  public function editUser($params): void {
+    if (!self::$session->isConnected() || !self::$session->isAdmin()) {
+      header('Location: /login');
+      die();
+    }
+
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $user = $this->userManager->getUser($params['id']);
+    foreach ($data as $key => $value) {
+      $method = 'set' . ucfirst($key);
+      if (method_exists($user, $method)) {
+        if ($key === 'role') {
+          $role = $this->roleManager->getRole((int)$value);
+          $user->setRole($role);
+          continue;
+        }
+        $user->$method($value);
+      }
+    }
+
+    $user->save();
+  }
+
 }

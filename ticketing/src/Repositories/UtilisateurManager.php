@@ -38,10 +38,13 @@ class UtilisateurManager extends Manager {
     return $users;
   }
 
-  public function findUser(string $username): Utilisateur {
+  public function findUser(string $username): ?Utilisateur {
     $query = $this->getInstance()->prepare('SELECT * FROM utilisateur WHERE login = :username');
     $query->execute(['username' => $username]);
     $res = $query->fetch(\PDO::FETCH_ASSOC);
+    if (!$res) {
+      return null;
+    }
 
     $user = new Utilisateur($res);
     return $user;

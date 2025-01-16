@@ -153,6 +153,9 @@ class Entity {
       $stmt->bindValue(":id", $this->idField);
 
       foreach ($vals as $name => $value) {
+        if (is_bool($value)) {
+          $value = $value ? 1 : 0;
+        }
         $stmt->bindValue($name, $value);
       }
 
@@ -190,7 +193,7 @@ class Entity {
         if ($colAttr->type === ColumnType::DATETIME) {
           $val = $val->format("Y-m-d H:i:s");
         }
-
+        
         $props[] = $dbName;
         $vals[":$dbName"] = $val;
       }
@@ -223,20 +226,24 @@ class Entity {
           $vals[":id_" . $propName] = $val->$method();
         }
       }
-
+      
       $valsKeys = array_keys($vals);
       $valsKeys = array_map(function ($key) {
         return str_replace("_", "", $key);
       }, $valsKeys);
-
+      
       $sql = "INSERT INTO " . $this->TABLE_NAME . " (" . join(", ", $props) . ") VALUES (" . join(", ", $valsKeys) . ")";
 
       try {
-
+        
         $stmt = $pdo->prepare($sql);
 
         foreach ($vals as $key => $val) {
-          $val = $val == null ? "" : $val;
+          $val = $val === null ? "" : $val;
+          if (is_bool($val)) {
+            $val = $val ? 1 : 0;
+          }
+
           $stmt->bindValue(str_replace("_", "", $key), $val);
         }
 

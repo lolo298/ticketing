@@ -6,12 +6,13 @@
   <form action="{{ path('login') }}" method="post">
     <h2>Login</h2>
     {% if error %}
-      <p>{{ error.messageKey }}</p>
+      <p>{{ error }}</p>
     {% endif %}
-    <label for="username">Username</label>
-    <input type="text" id="username" name="username" value="{{ last_username }}" required autofocus>
+    <label for="login">login</label>
+    <input type="text" id="login" name="login" value="{{ last_login }}" required autofocus>
     <label for="password">Password</label>
     <input type="password" id="password" name="password" required>
     <button type="submit">Login</button>
   </form>
+  <a href="{{path('register')}}">create an account</a>
 {% endblock %}

@@ -18,12 +18,14 @@ class MainController extends AbstractController {
   private PriorityManager $priorityManager;
   private StateManager $stateManager;
   private TicketManager $ticketManager;
+  private RoleManager $roleManager;
 
-  public function __construct(TypeManager $typeManager, PriorityManager $priorityManager, StateManager $stateManager, TicketManager $ticketManager) {
+  public function __construct(TypeManager $typeManager, PriorityManager $priorityManager, StateManager $stateManager, TicketManager $ticketManager, RoleManager $roleManager) {
     $this->typeManager = $typeManager;
     $this->priorityManager = $priorityManager;
     $this->stateManager = $stateManager;
     $this->ticketManager = $ticketManager;
+    $this->roleManager = $roleManager;
   }
 
 
@@ -34,7 +36,19 @@ class MainController extends AbstractController {
       header('Location: /login');
       die();
     }
-    $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC', extra: 'id_utilisateur = ' . self::$session->getUser()->getId());
+
+    $roleClient = $this->roleManager->findRole('CLIENT');
+
+    if ($roleClient === null) {
+      throw new \Exception('Role CLIENT not found');
+    }
+
+    if (self::$session->getUser()->getRole()->getId() === $roleClient->getId()) {
+      $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC', extra: 'id_utilisateur = ' . self::$session->getUser()->getId());
+    } else {
+      $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC');
+    }
+    
     $types = $this->typeManager->getTypes();
 
     $this->render('home', ['tickets' => $tickets, 'types' => $types]);

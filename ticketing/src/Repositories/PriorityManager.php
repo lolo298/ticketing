@@ -20,18 +20,21 @@ class PriorityManager extends Manager {
   }
 
   /** @return Priority[] */
-  public function getPriorities(int $limit, int $offset): array {
-    $query = $this->getInstance()->prepare('SELECT * FROM priority LIMIT :limit OFFSET :offset');
-    $query->bindValue(':limit', $limit, \PDO::PARAM_INT);
-    $query->bindValue(':offset', $offset, \PDO::PARAM_INT);
-    $query->execute();
-    $res = $query->fetchAll(\PDO::FETCH_ASSOC);
-    $priorities = [];
-    foreach ($res as $data) {
-      $r = new Priority($data);
-      $priorities[] = $r;
+  public function getPriorities(int $limit = 0, int $offset = 0, string $sortBy = 'id', string $sortDirection = 'ASC', string $extra = ""): array {
+    return $this->getValues('priority', Priority::class, $limit, $offset, $sortBy, $sortDirection, $extra);
+  }
+
+  public function findPriority(string $name): ?Priority {
+    $query = $this->getInstance()->prepare('SELECT * FROM priority WHERE name = :name');
+    $query->execute(['name' => $name]);
+    $res = $query->fetch(\PDO::FETCH_ASSOC);
+
+    if ($res === false) {
+      return null;
     }
-    return $priorities;
+
+    $priority = new Priority($res);
+    return $priority;
   }
 
 }

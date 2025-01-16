@@ -33,8 +33,8 @@ class AdminController extends AbstractController {
     }
 
 
-    $users = $this->userManager->getUsers(10, 0);
-    $roles = $this->roleManager->getRoles(10, 0);
+    $users = $this->userManager->getUsers();
+    $roles = $this->roleManager->getRoles();
     $this->render('users', ['users' => $users, 'roles' => $roles, 'error' => $error]);
   }
 

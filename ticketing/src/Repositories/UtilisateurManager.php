@@ -24,18 +24,8 @@ class UtilisateurManager extends Manager {
   }
 
   /** @return Utilisateur[] */
-  public function getUsers(int $limit, int $offset): array {
-    $query = $this->getInstance()->prepare('SELECT * FROM utilisateur LIMIT :limit OFFSET :offset');
-    $query->bindValue(':limit', $limit, \PDO::PARAM_INT);
-    $query->bindValue(':offset', $offset, \PDO::PARAM_INT);
-    $query->execute();
-    $res = $query->fetchAll(\PDO::FETCH_ASSOC);
-    $users = [];
-    foreach ($res as $data) {
-      $u = new Utilisateur($data);
-      $users[] = $u;
-    }
-    return $users;
+  public function getUsers(int $limit = 0, int $offset = 0, string $sortBy = 'id', string $sortDirection = 'ASC', string $extra = ""): array {
+    return $this->getValues('utilisateur', Utilisateur::class, $limit, $offset, $sortBy, $sortDirection, $extra);
   }
 
   public function findUser(string $username): ?Utilisateur {

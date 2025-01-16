@@ -66,6 +66,13 @@
 				{% endfor %}
 			</select>
 
+			<label for="priority">Priorité</label>
+			<select name="priority" id="priority">
+				{% for priority in priorities %}
+					<option value="{{ priority.id }}">{{ priority }}</option>
+				{% endfor %}
+			</select>
+
 			<button type="submit">Envoyer</button>
 			<input type="reset" id="closeNewTicketBtn"/>
 		</form>

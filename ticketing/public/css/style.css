@@ -2,6 +2,7 @@
   --primary-color: #333;
   --primary-text-color: #fff;
   --secondary-color: #000;
+  --accent-color: #1d67b6;
 }
 
 body {
@@ -77,6 +78,12 @@ form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+table a:link,
+table a:visited {
+  color: var(--accent-color);
+  text-decoration: underline;
 }
 
 

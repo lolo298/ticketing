@@ -50,8 +50,9 @@ class MainController extends AbstractController {
     }
     
     $types = $this->typeManager->getTypes();
+    $priorities = $this->priorityManager->getPriorities();
 
-    $this->render('home', ['tickets' => $tickets, 'types' => $types]);
+    $this->render('home', ['tickets' => $tickets, 'types' => $types, 'priorities' => $priorities]);
   }
 
   #[Route('/api/newTicket', 'POST', 'newTicket')]

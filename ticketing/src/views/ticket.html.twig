@@ -3,6 +3,7 @@
 {% block title %}Ticket n°{{ ticket.id }}
 {% endblock %}
 {% block content %}
+	<button class="closeTicket" data-id="{{ticket.id}}">Cloturer</button>
 	<form id="editForm">
 		<h2>Ticket n°{{ ticket.id }}</h2>
 		<label>Sujet:
@@ -44,8 +45,15 @@
 	</form>
 
 	<div>
-		<h2>Chat</h2>
-
+		<h2>Commentaires</h2>
+		<textarea name="message" id="chatInput"></textarea>
+		<button id="sendChat">Envoyer</button>
+		{% for traitement in traitements %}
+			<div>
+				<p>{{ traitement.date.format("d/M/Y H:m:s") }}</p>
+				<p>{{ traitement.message }}</p>
+			</div>
+		{% endfor %}
 
 	</div>
 

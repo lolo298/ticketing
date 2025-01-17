@@ -5,6 +5,7 @@ namespace Ticketing\Controllers;
 use Runtime\AbstractController;
 use Runtime\Route;
 use Ticketing\Models\Ticket;
+use Ticketing\Models\Traitement;
 use Ticketing\Repositories\RoleManager;
 use Ticketing\Repositories\TypeManager;
 use Ticketing\Repositories\UtilisateurManager;
@@ -48,7 +49,7 @@ class MainController extends AbstractController {
     } else {
       $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC');
     }
-    
+
     $types = $this->typeManager->getTypes();
     $priorities = $this->priorityManager->getPriorities();
 
@@ -95,7 +96,13 @@ class MainController extends AbstractController {
       die();
     }
 
-    $this->render("ticket", ['ticket' => $ticket, 'states' => $this->stateManager->getStates(), 'types' => $this->typeManager->getTypes(), 'priorities' => $this->priorityManager->getPriorities()]);
+    $traitements = $ticket->getTraitements();
+    uasort($traitements, function ($a, $b) {
+      return $b->getDate() <=> $a->getDate();
+    });
+
+
+    $this->render("ticket", ['ticket' => $ticket, 'states' => $this->stateManager->getStates(), 'types' => $this->typeManager->getTypes(), 'priorities' => $this->priorityManager->getPriorities(), 'traitements' => $traitements]);
   }
 
   #[Route('/ticket/{id}/edit', 'POST', 'updateTicket')]
@@ -120,7 +127,7 @@ class MainController extends AbstractController {
     }
   }
 
-  
+
   #[Route('/ticket/{id}/edit', 'DELETE', 'closeTicket')]
   public function closeTicket(array $params): void {
     if (self::$session->isConnected() === false) {
@@ -146,7 +153,33 @@ class MainController extends AbstractController {
       $ticket->save();
     } catch (\Exception $e) {
       http_response_code(500);
-      // echo $e->getMessage();
+      echo $e->getMessage();
+    }
+  }
+
+  #[Route('/ticket/{id}/chat', 'POST', 'sendChat')]
+  public function sendChat(array $params): void {
+    if (self::$session->isConnected() === false) {
+      header('Location: /login');
+      die();
+    }
+    $ticket = $this->ticketManager->getTicket($params['id']);
+    if ($ticket->getId() === null) {
+      header("Location: /");
+      die();
+    }
+
+    $data = file_get_contents('php://input');
+    $data = json_decode($data, true);
+
+    $newTraitement = new Traitement($data);
+    $newTraitement->setTicket($ticket);
+
+    try {
+      $newTraitement->save();
+    } catch (\Exception $e) {
+      http_response_code(500);
+      echo $e->getMessage();
     }
   }
 }

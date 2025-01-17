@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   web:
     build: ./ticketing
@@ -16,22 +15,6 @@ services:
         - path: ./ticketing/Dockerfile
           target: /var/www/html/Dockerfile
           action: rebuild
-  exos:
-    build: ./exos
-    ports:
-      - "8082:80"
-    environment:
-      DB_ADDRESS: ${DB_ADDRESS}
-    depends_on:
-      - db
-    develop:
-      watch:
-        - path: ./exos
-          target: /var/www/html
-          action: sync
-        - path: ./exos/Dockerfile
-          target: /var/www/html/Dockerfile
-          action: rebuild
   db:
     image: mysql:8.1.0
     environment:
@@ -39,5 +22,6 @@ services:
       MYSQL_DATABASE: lamp_db
     volumes:
       - ./mysql_data:/var/lib/mysql 
+      - ./ticketing/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306"

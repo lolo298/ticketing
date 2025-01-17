@@ -56,4 +56,14 @@ function getRoute(routeName, param) {
     return [parsedRoute, method];
 }
 
+function closeTicket(id) {
+    const [route, method] = window.getRoute("closeTicket", id);
+    fetch(route, {
+        method,
+    }).then(() => {
+        console.log("Ticket closed");
+        window.location.reload();
+    });
+}
+
 InitModals();

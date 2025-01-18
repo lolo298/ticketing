@@ -5,6 +5,7 @@ namespace Ticketing\Controllers;
 use Runtime\AbstractController;
 use Runtime\Route;
 use Ticketing\Models\Ticket;
+use Ticketing\Models\Traitement;
 use Ticketing\Repositories\RoleManager;
 use Ticketing\Repositories\TypeManager;
 use Ticketing\Repositories\UtilisateurManager;
@@ -18,12 +19,14 @@ class MainController extends AbstractController {
   private PriorityManager $priorityManager;
   private StateManager $stateManager;
   private TicketManager $ticketManager;
+  private RoleManager $roleManager;
 
-  public function __construct(TypeManager $typeManager, PriorityManager $priorityManager, StateManager $stateManager, TicketManager $ticketManager) {
+  public function __construct(TypeManager $typeManager, PriorityManager $priorityManager, StateManager $stateManager, TicketManager $ticketManager, RoleManager $roleManager) {
     $this->typeManager = $typeManager;
     $this->priorityManager = $priorityManager;
     $this->stateManager = $stateManager;
     $this->ticketManager = $ticketManager;
+    $this->roleManager = $roleManager;
   }
 
 
@@ -34,10 +37,23 @@ class MainController extends AbstractController {
       header('Location: /login');
       die();
     }
-    $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC', extra: 'id_utilisateur = ' . self::$session->getUser()->getId());
-    $types = $this->typeManager->getTypes();
 
-    $this->render('home', ['tickets' => $tickets, 'types' => $types]);
+    $roleClient = $this->roleManager->findRole('CLIENT');
+
+    if ($roleClient === null) {
+      throw new \Exception('Role CLIENT not found');
+    }
+
+    if (self::$session->getUser()->getRole()->getId() === $roleClient->getId()) {
+      $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC', extra: 'id_utilisateur = ' . self::$session->getUser()->getId());
+    } else {
+      $tickets = $this->ticketManager->getTickets(sortBy: 'creation_date', sortDirection: 'DESC');
+    }
+
+    $types = $this->typeManager->getTypes();
+    $priorities = $this->priorityManager->getPriorities();
+
+    $this->render('home', ['tickets' => $tickets, 'types' => $types, 'priorities' => $priorities]);
   }
 
   #[Route('/api/newTicket', 'POST', 'newTicket')]
@@ -80,11 +96,79 @@ class MainController extends AbstractController {
       die();
     }
 
-    $this->render("ticket", ['ticket' => $ticket]);
+    $traitements = $ticket->getTraitements();
+    uasort($traitements, function ($a, $b) {
+      return $b->getDate() <=> $a->getDate();
+    });
+
+
+    $this->render("ticket", ['ticket' => $ticket, 'states' => $this->stateManager->getStates(), 'types' => $this->typeManager->getTypes(), 'priorities' => $this->priorityManager->getPriorities(), 'traitements' => $traitements]);
   }
 
-  #[Route('/api/edit/ticket/{id}', 'POST', 'updateTicket')]
+  #[Route('/ticket/{id}/edit', 'POST', 'updateTicket')]
   public function updateTicket(array $params): void {
+    http_response_code(500);
+    if (self::$session->isConnected() === false) {
+      header('Location: /login');
+      die();
+    }
+    $ticket = $this->ticketManager->getTicket((int)$params['id']);
+    if ($ticket->getId() === null) {
+      header("Location: /");
+      die();
+    }
+    
+    $ticket->setSubject($_POST['subject']);
+    $ticket->setDescription($_POST['description']);
+
+    $type = $this->typeManager->getType((int)$_POST['type']);
+    $ticket->setType($type);
+
+    $priority = $this->priorityManager->getPriority((int)$_POST['priority']);
+    $ticket->setPriority($priority);
+
+    $state = $this->stateManager->getState((int)$_POST['state']);
+    $ticket->setState($state);
+
+    try {
+      $ticket->save();
+    } catch (\Exception $e) {
+      echo $e->getMessage();
+    }
+  }
+
+
+  #[Route('/ticket/{id}/edit', 'DELETE', 'closeTicket')]
+  public function closeTicket(array $params): void {
+    if (self::$session->isConnected() === false) {
+      header('Location: /login');
+      die();
+    }
+    $ticket = $this->ticketManager->getTicket((int)$params['id']);
+    if ($ticket->getId() === null) {
+      header("Location: /");
+      die();
+    }
+
+    $closedState = $this->stateManager->findState('CLOSED');
+
+    if ($closedState === null) {
+      throw new \Exception('State CLOSED not found');
+    }
+
+    $ticket->setState($closedState);
+
+
+    try {
+      $ticket->save();
+    } catch (\Exception $e) {
+      http_response_code(500);
+      echo $e->getMessage();
+    }
+  }
+
+  #[Route('/ticket/{id}/chat', 'POST', 'sendChat')]
+  public function sendChat(array $params): void {
     if (self::$session->isConnected() === false) {
       header('Location: /login');
       die();
@@ -95,11 +179,14 @@ class MainController extends AbstractController {
       die();
     }
 
-    $this->ticketManager->getTicket($params['id']);
-    $ticket->hydrate($_POST);
+    $data = file_get_contents('php://input');
+    $data = json_decode($data, true);
+
+    $newTraitement = new Traitement($data);
+    $newTraitement->setTicket($ticket);
 
     try {
-      $ticket->save();
+      $newTraitement->save();
     } catch (\Exception $e) {
       http_response_code(500);
       echo $e->getMessage();

@@ -15,13 +15,19 @@
 	<body>
 		<nav class="navbar">
 			<h1>Ticketing</h1>
-			<ul>
-			{% if session.isConnected() %}
-				<li><a href="{{ path('home')}}">Home</a></li>
-				{% if session.isAdmin() %}
-					<li><a href="{{ path('users')}}">Users</a></li>
-				{% endif %}
-				<li><a href="{{ path('logout')}}">Logout</a></li>
+			<ul class="nav-links transition-colors">
+				{% if session.isConnected() %}
+					<li>
+						<a href="{{ path('home')}}">Home</a>
+					</li>
+					{% if session.isAdmin() %}
+						<li>
+							<a href="{{ path('users')}}">Users</a>
+						</li>
+					{% endif %}
+					<li>
+						<a href="{{ path('logout')}}">Logout</a>
+					</li>
 				{% endif %}
 			</ul>
 		</nav>
@@ -29,10 +35,29 @@
 			{% block content %}{% endblock %}
 		</main>
 
+		<template id="select-template">
+			<div class="select">
+				<div class="select-container">
+					<div class="select-choosen"></div>
+					<svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+				</div>
+			</div>
+		</template>
+
+		<template id="select-choice-template">
+			<div class="select-choice"></div>
+		</template>
+
+		<template id="select-item-template">
+			<div class="select-item"></div>
+		</template>
+
 
 		{% block script %}
 			<script type="application/json" id="routes">{{ routes()|json_encode|raw }}</script>
 			<script src="/public/js/dataParser.js"></script>
+			<script src="/public/js/index.js"></script>
+
 		{% endblock %}
 	</body>
 

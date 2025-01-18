@@ -20,19 +20,8 @@ class TicketManager extends Manager {
   }
 
   /** @return Ticket[] */
-  public function getTickets(int $limit = 10, int $offset = 0, string $sortBy = 'id', string $sortDirection = 'ASC', string $extra = ""): array {
-    $query = $this->getInstance()->prepare("SELECT * FROM ticket WHERE $extra ORDER BY $sortBy $sortDirection LIMIT :limit OFFSET :offset");
-    $query->bindParam(':limit', $limit, \PDO::PARAM_INT);
-    $query->bindParam(':offset', $offset, \PDO::PARAM_INT);
-
-    $query->execute();
-    $res = $query->fetchAll(\PDO::FETCH_ASSOC);
-    $tickets = [];
-    foreach ($res as $data) {
-      $r = new Ticket($data);
-      $tickets[] = $r;
-    }
-    return $tickets;
+  public function getTickets(int $limit = 0, int $offset = 0, string $sortBy = 'id', string $sortDirection = 'ASC', string $extra = ""): array {
+    return $this->getValues('ticket', Ticket::class, $limit, $offset, $sortBy, $sortDirection, $extra);
   }
 
 }

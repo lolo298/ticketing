@@ -3,6 +3,9 @@ require_once __DIR__ . '/autoload.php';
 
 use Runtime\Route;
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
+
 //scan existing controllers
 function scan_dir($dir) {
   $files = scandir($dir);

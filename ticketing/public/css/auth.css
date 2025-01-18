@@ -1,0 +1,20 @@
+a:link,
+a:visited {
+    color: hsl(var(--foreground));
+    text-decoration: underline;
+}
+
+
+form {
+  padding: 1.5rem;
+  gap: 1rem 10rem;
+
+  width: 20rem;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+}

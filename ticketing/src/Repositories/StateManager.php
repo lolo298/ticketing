@@ -20,18 +20,20 @@ class StateManager extends Manager {
   }
 
   /** @return State[] */
-  public function getStates(int $limit, int $offset): array {
-    $query = $this->getInstance()->prepare('SELECT * FROM state LIMIT :limit OFFSET :offset');
-    $query->bindValue(':limit', $limit, \PDO::PARAM_INT);
-    $query->bindValue(':offset', $offset, \PDO::PARAM_INT);
-    $query->execute();
-    $res = $query->fetchAll(\PDO::FETCH_ASSOC);
-    $states = [];
-    foreach ($res as $data) {
-      $r = new State($data);
-      $states[] = $r;
-    }
-    return $states;
+  public function getStates(int $limit = 0, int $offset = 0, string $sortBy = 'id', string $sortDirection = 'ASC', string $extra = ""): array {
+    return $this->getValues('state', State::class, $limit, $offset, $sortBy, $sortDirection, $extra);
   }
 
+  public function findState(string $name): ?State {
+    $query = $this->getInstance()->prepare('SELECT * FROM state WHERE name = :name');
+    $query->execute(['name' => $name]);
+    $res = $query->fetch(\PDO::FETCH_ASSOC);
+
+    if ($res === false) {
+      return null;
+    }
+
+    $state = new State($res);
+    return $state;
+  }
 }

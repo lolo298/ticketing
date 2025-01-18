@@ -5,8 +5,11 @@ namespace ORM;
 use Runtime\BDD;
 
 use ReflectionClass;
+use ReflectionMethod;
 use ReflectionProperty;
 use Runtime\Manager;
+use Ticketing\Models\State;
+use Ticketing\Models\Traitement;
 
 class Entity {
   private string $TABLE_NAME = "";
@@ -20,7 +23,6 @@ class Entity {
   private mixed $idField;
 
   public function __construct($data = []) {
-
     $className = get_class($this);
     $tmp = explode("\\", $className);
     $this->TABLE_NAME = array_pop($tmp);
@@ -55,15 +57,16 @@ class Entity {
         $this->$method($data[$id->getName()]);
         $this->idField = $data[$id->getName()];
       } else {
-        $method = "set" . ucfirst(string: $id->getName());
         $this->idField = null;
       }
 
       $this->hydrate($data);
+    } else {
+      $this->idField = null;
     }
   }
 
-  public function save(): void {
+  public function save($circular = false): void {
     $db = BDD::getInstance();
     $pdo = $db->getPDO();
 
@@ -80,9 +83,13 @@ class Entity {
 
     foreach ($this->relationsManyToOne as $relation) {
       $attrs = $relation->getAttributes(ManyToOne::class);
+      $attr = $attrs[0]->newInstance();
+
 
       if ($relation->isInitialized($this) === false || $relation->getValue($this) === null) {
-        throw new \Exception("Relation " . $relation->getName() . " cannot be null");
+        if ($this::class === $attr->inversedBy && $circular === false) {
+          throw new \Exception("Relation " . $relation->getName() . " cannot be null");
+        }
       }
     }
 
@@ -111,7 +118,22 @@ class Entity {
 
         $name = strtolower($col->getName());
         $method = "get" . ucfirst($name);
-        $val = $this->$method();
+        $setter = "set" . ucfirst($name);
+
+        $methodReflection = new ReflectionMethod($this, $setter);
+        $arg = $methodReflection->getParameters()[0];
+
+        if (!$arg->getType()->isBuiltin() && $arg->getType()->getName() !== "DateTime") {
+          $val = $this->$method();
+          $val->save();
+          $val = $val->getId();
+
+          // $val = new ($colAttr->type)();
+        } else {
+          $val = $this->$method();
+        }
+
+
 
         if ($colAttr->type === ColumnType::DATETIME) {
           $val = $val->format("Y-m-d H:i:s");
@@ -121,25 +143,34 @@ class Entity {
       }
 
       foreach ($this->relationsManyToOne as $relation) {
+        if ($circular) {
+          continue;
+        }
         $propName = $relation->getName();
+        $attrs = $relation->getAttributes(ManyToOne::class);
+        $attr = $attrs[0]->newInstance();
+
         $method = "get" . ucfirst($propName);
         $val = $this->$method();
-        $val->save();
 
-        $reflectRelation = new ReflectionClass($val);
-        $propsRelation = $reflectRelation->getProperties();
-        $pk = array_filter($propsRelation, function ($prop) {
-          $args = $prop->getAttributes(Id::class);
-          return !empty($args);
-        });
+        if ($attr->inversedBy === $this::class) {
+          $val->save(true);
 
-
-        $pkName = $pk[0]->getName();
-        $method = "get" . ucfirst($pkName);
-
-        $vals["id_" . $propName] = $val->$method();
+          $reflectRelation = new ReflectionClass($val);
+          $propsRelation = $reflectRelation->getProperties();
+          $pk = array_filter($propsRelation, function ($prop) {
+            $args = $prop->getAttributes(Id::class);
+            return !empty($args);
+          });
+          $pkName = $pk[0]->getName();
+          $method = "get" . ucfirst($pkName);
+          $vals["id_" . $propName] = $val->$method();
+        } else {
+          foreach ($val as $v) {
+            $v->save(true);
+          }
+        }
       }
-
 
       $sql = "UPDATE " . $this->TABLE_NAME . " SET ";
 
@@ -193,24 +224,31 @@ class Entity {
         if ($colAttr->type === ColumnType::DATETIME) {
           $val = $val->format("Y-m-d H:i:s");
         }
-        
+
         $props[] = $dbName;
         $vals[":$dbName"] = $val;
       }
-
       foreach ($this->relationsManyToOne as $relation) {
+        if ($circular) {
+          continue;
+        }
+
         $propName = $relation->getName();
         $method = "get" . ucfirst($propName);
         $val = $this->$method();
         $attrs = $relation->getAttributes(ManyToOne::class);
         $attr = $attrs[0]->newInstance();
 
-        if ($attr->inversedBy === $attr->targetEntity) {
+        if ($attr->inversedBy !== $this::class) {
+          //inverser par la target donc self = [T] target = T
+
           foreach ($val as $v) {
-            $v->save();
+            $v->save(true);
           }
         } else {
-          $val->save();
+          //inverser par la self donc self = T target = [T]
+
+          $val->save(true);
           $reflectRelation = new ReflectionClass($val);
           $propsRelation = $reflectRelation->getProperties();
           $pk = array_filter($propsRelation, function ($prop) {
@@ -226,16 +264,16 @@ class Entity {
           $vals[":id_" . $propName] = $val->$method();
         }
       }
-      
+
       $valsKeys = array_keys($vals);
       $valsKeys = array_map(function ($key) {
         return str_replace("_", "", $key);
       }, $valsKeys);
-      
+
       $sql = "INSERT INTO " . $this->TABLE_NAME . " (" . join(", ", $props) . ") VALUES (" . join(", ", $valsKeys) . ")";
 
       try {
-        
+
         $stmt = $pdo->prepare($sql);
 
         foreach ($vals as $key => $val) {
@@ -319,16 +357,24 @@ class Entity {
           }
 
           $col = $attrs[0]->newInstance();
+
           if ($val === null && $col->nullable === false) {
             throw new \Exception("Column $name cannot be null");
           }
+
           $val = match ($col->type) {
             ColumnType::VARCHAR => (string) $val,
             ColumnType::INTEGER => (int) $val,
             ColumnType::BOOLEAN => (bool) $val,
             ColumnType::DATETIME => new \DateTime($val),
             ColumnType::DECIMAL => (float) $val,
-            default => $val
+            default => (function () use ($val, $col) {
+              $reflect = new ReflectionClass($col->type);
+
+              $manager = new Manager();
+              $data = $manager->findById($val, $reflect->getShortName(), (string)$col->type);
+              return $data;
+            })()
           };
 
           $this->$method($val);
@@ -342,18 +388,49 @@ class Entity {
       $manyToOne = $attrs[0]->newInstance();
 
       $relationClass = $manyToOne->targetEntity;
+      $targetTableName = (new ReflectionClass($relationClass))->getShortName();
 
+      if ($manyToOne->inversedBy !== $this::class) {
+        if (in_array($this::class, $circularReferences)) {
+          continue;
+        }
+        if (!array_key_exists("id", $data)) {
+          continue;
+        }
 
-      if (isset($data['id_' . $relationName])) {
-        $sql = "SELECT * FROM $relationName WHERE id = :id LIMIT 1";
+        $sql = "SELECT * FROM $targetTableName WHERE id_" . $reflect->getShortName() . " = :id";
         $stmt = Manager::getInstance()->prepare($sql);
-        $stmt->bindValue(":id", $data["id_" . $relationName]);
+        $stmt->bindValue(":id", $data["id"]);
         $stmt->execute();
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        $relationInstance = new $relationClass($row);
+        $relationInstances = [];
+        $circularReferences[] = $relationClass;
+        if ($rows !== false) {
+          foreach ($rows as $row) {
+            $relationInstance = new $relationClass();
+            $relationInstance->hydrate($row, array_merge($circularReferences, [$relationClass]));
+            $relationInstances[] = $relationInstance;
+          }
+        }
+
         $method = "set" . ucfirst($relationName);
-        $this->$method($relationInstance);
+        $this->$method($relationInstances);
+      } else {
+        if (isset($data['id_' . $relationName])) {
+          if (in_array($this::class, $circularReferences)) {
+            continue;
+          }
+          $sql = "SELECT * FROM $targetTableName WHERE id = :id LIMIT 1";
+          $stmt = Manager::getInstance()->prepare($sql);
+          $stmt->bindValue(":id", $data["id_" . $relationName]);
+          $stmt->execute();
+          $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+          $relationInstance = new $relationClass($row);
+          $method = "set" . ucfirst($relationName);
+          $this->$method($relationInstance);
+        }
       }
     }
 
@@ -362,7 +439,7 @@ class Entity {
       $attr = $attrs[0]->newInstance();
 
       $relationName = (new ReflectionClass($attr->targetEntity))->getShortName();
-      $relationClass = $attr->targetEntity;
+      $targetEntityClass = $attr->targetEntity;
       // $tableName = "assoc_" . $relationName . "_" . $reflect->getShortName();
 
       $mainEntity = new ReflectionClass($attr->mainEntity);
@@ -370,7 +447,7 @@ class Entity {
 
       $tableName = "assoc_" . $mainEntity->getShortName() . "_" . $targetEntity->getShortName();
 
-      if (in_array($relationClass, $circularReferences)) {
+      if (in_array($targetEntityClass, $circularReferences)) {
       } else {
         $circularSql = "SELECT DISTINCT main.* FROM " . $targetEntity->getShortName() . " main JOIN $tableName assocTable ON main.id = assocTable.id_" . $targetEntity->getShortName() . " WHERE assocTable.id_" . $reflect->getShortName() . " = :id";
         $stmt = Manager::getInstance()->prepare($circularSql);
@@ -394,11 +471,11 @@ class Entity {
 
         $hydratedData = [];
 
-        $circularReferences[] = $relationClass;
+        $circularReferences[] = $targetEntityClass;
         foreach ($data as $row) {
           $className = $targetEntity->getName();
           $relationInstance = new $className();
-          $relationInstance->hydrate($row, array_merge($circularReferences, [$this]), $this);
+          $relationInstance->hydrate($row, array_merge($circularReferences, [$targetEntityClass]));
           $hydratedData[] = $relationInstance;
         }
 

@@ -1,29 +1,46 @@
+const form = document.querySelector("#editForm");
+const sendChatButton = document.querySelector("#sendChat");
+const chatInput = document.querySelector("#chatInput");
+const closeTicketButton = document.querySelector("#closeTicket");
 
-const form = document.querySelector('#editForm');
+const ticketId = dataJSON.id;
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const formData = new FormData(form);
-/** @var routesJSON object<string, string> */
+    const formData = new FormData(form);
 
-const route = Object.entries(routesJSON).find(([rpath, name]) => {
-  return name === "updateTicket"
+    const [route, method] = window.getRoute("updateTicket", ticketId);
+    const response = await fetch(route, {
+        method,
+        body: formData,
+    });
+
+    if (response.ok) {
+        console.log("Ticket updated");
+    }
 });
 
-console.log(route);
+sendChatButton.addEventListener("click", async () => {
+    const message = chatInput.value;
 
-const [rpath, method] = route[0].split('::');
+    const [route, method] = window.getRoute("sendChat", ticketId);
+    const response = await fetch(route, {
+        method,
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message }),
+    });
 
-const parsedRoute = rpath.toString().replaceAll(/\\\//g, "*").replaceAll(/[/\\^$]/g, "").replaceAll("*", "/").replace(/(\(.+\))/g, dataJSON.id);
+    if (response.ok) {
+        console.log("Chat sent");
+        window.location.reload();
+    }
+})
 
-const response = await fetch(parsedRoute, {
-  method,
-  body: formData
-});
-
-if (response.ok) {
-  console.log('Ticket updated');
-} 
-
+closeTicketButton.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const ticketId = closeTicketButton.dataset.id;
+    closeTicket(ticketId);
 });

@@ -20,18 +20,20 @@ class RoleManager extends Manager {
   }
 
   /** @return Role[] */
-  public function getRoles(int $limit = 10, int $offset = 0): array {
-    $query = $this->getInstance()->prepare('SELECT * FROM role LIMIT :limit OFFSET :offset');
-    $query->bindValue(':limit', $limit, \PDO::PARAM_INT);
-    $query->bindValue(':offset', $offset, \PDO::PARAM_INT);
-    $query->execute();
-    $res = $query->fetchAll(\PDO::FETCH_ASSOC);
-    $roles = [];
-    foreach ($res as $data) {
-      $r = new Role($data);
-      $roles[] = $r;
-    }
-    return $roles;
+  public function getRoles(int $limit = 0, int $offset = 0, string $sortBy = 'id', string $sortDirection = 'ASC', string $extra = ""): array {
+    return $this->getValues('role', Role::class, $limit, $offset, $sortBy, $sortDirection, $extra);
   }
 
+  public function findRole(string $name): ?Role {
+    $query = $this->getInstance()->prepare('SELECT * FROM role WHERE name = :name');
+    $query->execute(['name' => $name]);
+    $res = $query->fetch(\PDO::FETCH_ASSOC);
+
+    if ($res === false) {
+      return null;
+    }
+
+    $role = new Role($res);
+    return $role;
+  }
 }

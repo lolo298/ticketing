@@ -1,33 +1,86 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ticket n°{{ ticket.id }}{% endblock %}
+{% block title %}Ticket n°{{ ticket.id }}
+{% endblock %}
 {% block content %}
-    <form id="editForm">
-    <h2>Ticket n°{{ ticket.id }}</h2>
-    <label>Sujet: <input name="subject" value="{{ ticket.subject }}" /></label>
-    <label>Description: <input name="description" value="{{ ticket.description }}" /></label>
-    <p>Creation: {{ ticket.creationDate.format("d/M/Y H:m:s") }}</p>
-    <p>Mise a jour: {{ ticket.updateDate.format("d/M/Y H:m:s") }}</p>
-    <p>Demandeur: {{ ticket.utilisateur.Login }}</p>
-    <p>Type: {{ ticket.type }}</p>
-    <p>Priorité: {{ ticket.priority }}</p>
-    <p>Etat: {{ ticket.state }}</p>
+	<button id="closeTicket" class="destructive-button" data-id="{{ticket.id}}">Cloturer</button>
+	<h2>Ticket n°{{ ticket.id }}</h2>
+	<form id="editForm">
+		<div class="input">
+			<label for="subject">Sujet</label>
+			<input name="subject" id="subject" value="{{ ticket.subject }}" type="text"/>
+		</div>
+		<div class="input textarea">
+			<label for="description">Description</label>
+			<textarea name="description" id="description" type="text" cols="30" rows="10">{{ ticket.description }}</textarea>
+		</div>
+		<div class="input">
+			<label for="creation">Creation</label>
+			<input type="text" id="creation" disabled value="{{ ticket.creationDate.format("d/m/Y H:m:s") }}"/>
+		</div>
+		<div class="input">
+			<label for="update">Mise a jour</label>
+			<input type="text" id="update" disabled value="{{ ticket.updateDate.format("d/m/Y H:m:s") }}"/>
+		</div>
+		<div class="input">
+			<label for="demandeur">Demandeur</label>
+			<input type="text" id="demandeur" disabled value="{{ ticket.utilisateur.Login }}"/>
+		</div>
 
-    <button type="submit">Enregistrer</button>
-    </form>
+		<div class="input">
+			<label for="type">Type</label>
+			<select name="type" id="type">
+				{% for type in types %}
+					<option value="{{ type.id }}" {% if ticket.type.id == type.id %} selected {% endif %}>{{ type }}</option>
+				{% endfor %}
+			</select>
+		</div>
 
-    <div>
-    <h2>Chat</h2>
-    
-    
-    
-    
-    </div>
+		<div class="input">
+			<label for="priority">Priorité</label>
+			<select name="priority" id="priority">
+				{% for priority in priorities %}
+					<option value="{{ priority.id }}" {% if ticket.priority.id == priority.id %} selected {% endif %}>{{ priority }}</option>
+				{% endfor %}
+			</select>
+		</div>
+
+
+		<div class="input">
+			<label for="state">Etat</label>
+			<select name="state" id="state">
+				{% for state in states %}
+					<option value="{{ state.id }}" {% if ticket.state.id == state.id %} selected {% endif %}>{{ state }}</option>
+				{% endfor %}
+			</select>
+		</div>
+
+		<button type="submit" class="outline-button">Enregistrer</button>
+	</form>
+
+	<div class="input">
+		<h2>Commentaires</h2>
+		<textarea name="message" id="chatInput"></textarea>
+	</div>
+	<button id="sendChat" class="outline-button">Envoyer</button>
+	<div class="chats">
+		{% for traitement in traitements %}
+			<div class="chat">
+				<p class="date">{{ traitement.date.format("d/m/Y H:m:s") }}</p>
+				<p class="msg">{{ traitement.message }}</p>
+			</div>
+		{% endfor %}
+	</div>
 
 {% endblock %}
 
 {% block script %}
-    <script type="application/json" id="data">{{ {'id': ticket.id}|json_encode|raw}}</script>
-    {{ parent() }}
-    <script src="/public/js/ticket.js"></script>
+	<script type="application/json" id="data">{{ {'id': ticket.id}|json_encode|raw}}</script>
+	{{ parent() }}
+	<script src="/public/js/ticket.js"></script>
+{% endblock %}
+
+{% block stylesheet %}
+	{{ parent() }}
+	<link rel="stylesheet" href="/public/css/ticket.css">
 {% endblock %}

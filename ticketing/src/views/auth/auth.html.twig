@@ -5,12 +5,14 @@
 	{{ parent() }}
 {% endblock %}
 
+{% block stylesheet %}
+	{{ parent() }}
+	<link rel="stylesheet" href="/public/css/auth.css">
+{% endblock %}
+
 
 {% block content %}
-
-<div>
-
-  {% block auth %}{% endblock %}
-</div>
-
+	<div>
+		{% block auth %}{% endblock %}
+	</div>
 {% endblock %}

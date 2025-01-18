@@ -21,19 +21,20 @@ class TypeManager extends Manager {
   }
 
   /** @return Type[] */
-  public function getTypes(int $limit = 0, int $offset = 0): array {
-    $query = $this->getInstance()->prepare('SELECT * FROM type ' . ($limit > 0 ? 'LIMIT :limit OFFSET :offset' : ''));
-    if ($limit > 0) {
-      $query->bindValue(':limit', $limit, \PDO::PARAM_INT);
-      $query->bindValue(':offset', $offset, \PDO::PARAM_INT);
+  public function getTypes(int $limit = 0, int $offset = 0, string $sortBy = 'id', string $sortDirection = 'ASC', string $extra = ""): array {
+    return $this->getValues('type', Type::class, $limit, $offset, $sortBy, $sortDirection, $extra);
+  }
+
+  public function findType(string $name): ?Type {
+    $query = $this->getInstance()->prepare('SELECT * FROM type WHERE name = :name');
+    $query->execute(['name' => $name]);
+    $res = $query->fetch(\PDO::FETCH_ASSOC);
+
+    if ($res === false) {
+      return null;
     }
-    $query->execute();
-    $res = $query->fetchAll(\PDO::FETCH_ASSOC);
-    $types = [];
-    foreach ($res as $data) {
-      $r = new Type($data);
-      $types[] = $r;
-    }
-    return $types;
+
+    $type = new Type($res);
+    return $type;
   }
 }

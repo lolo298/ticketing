@@ -41,10 +41,10 @@
 		</table>
 	</div>
 	<p class="error">{{ error }}</p>
+				{{ dump('newUser') }}
 
 	<dialog id="newUserModal" class="modal" data-trigger="#newUserBtn" data-close="#closeNewUserBtn">
 		<div class="modal-content">
-
 			<form method="POST" action="{{ path('newUser') }}">
 
 				<div class="input">

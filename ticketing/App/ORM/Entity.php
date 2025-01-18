@@ -98,7 +98,6 @@ class Entity {
 
     if ($this->idField !== null) {
       //update
-
       $vals = [];
       $sqls = [];
 
@@ -199,7 +198,6 @@ class Entity {
       }
     } else {
       //insert
-
       $props = [];
       $vals = [];
 
@@ -228,6 +226,7 @@ class Entity {
         $props[] = $dbName;
         $vals[":$dbName"] = $val;
       }
+
       foreach ($this->relationsManyToOne as $relation) {
         if ($circular) {
           continue;

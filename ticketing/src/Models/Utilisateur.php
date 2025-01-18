@@ -12,7 +12,7 @@ class Utilisateur extends ORM\SerializableEntity {
   private string $login;
   #[ORM\Column(type:ORM\ColumnType::VARCHAR)]
   private string $password;
-  #[ORM\Column(type:Role::class)]
+  #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: self::class)]
   private Role $role;
   #[ORM\Column(type:ORM\ColumnType::BOOLEAN)]
   private bool $actif;

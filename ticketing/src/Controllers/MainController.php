@@ -107,7 +107,6 @@ class MainController extends AbstractController {
 
   #[Route('/ticket/{id}/edit', 'POST', 'updateTicket')]
   public function updateTicket(array $params): void {
-    http_response_code(500);
     if (self::$session->isConnected() === false) {
       header('Location: /login');
       die();
@@ -120,19 +119,22 @@ class MainController extends AbstractController {
     
     $ticket->setSubject($_POST['subject']);
     $ticket->setDescription($_POST['description']);
-
+    
     $type = $this->typeManager->getType((int)$_POST['type']);
     $ticket->setType($type);
-
+    
     $priority = $this->priorityManager->getPriority((int)$_POST['priority']);
     $ticket->setPriority($priority);
-
+    
     $state = $this->stateManager->getState((int)$_POST['state']);
     $ticket->setState($state);
 
+    $ticket->setUpdateDate(new \DateTime());
+    
     try {
       $ticket->save();
     } catch (\Exception $e) {
+      http_response_code(500);
       echo $e->getMessage();
     }
   }

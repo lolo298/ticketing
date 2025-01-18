@@ -39,19 +39,19 @@ class AdminController extends AbstractController {
   }
 
 
-  #[Route('/newUser', 'POST', 'newUser')]
+  #[Route('/admin/newUser', 'POST', 'newUser')]
   public function newUser(): void {
     $data = $_POST;
 
     if ($this->userManager->findUser($data['login'])) {
-
       header('Location: ' . explode('?', $_SERVER['HTTP_REFERER'])[0] . '?error=' . urlencode(('Utilisateur déjà existant')));
       die();
     }
-
+    
     $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
     $role = $this->roleManager->getRole((int)$data['role']);
-
+    
+    
     unset($data['role']);
 
     $user = new Utilisateur($data);

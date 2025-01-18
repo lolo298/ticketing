@@ -1,4 +1,3 @@
-/*!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19  Distrib 10.6.18-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: 192.168.1.115    Database: ticketing
@@ -253,7 +252,7 @@ CREATE TABLE `utilisateur` (
   `creation_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `role` int NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `role` (`role`),
+  KEY `id_role` (`role`),
   CONSTRAINT `utilisateur_ibfk_1` FOREIGN KEY (`role`) REFERENCES `role` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

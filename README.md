@@ -5,12 +5,12 @@
 ### Method 1: Using Docker
 
 1. Clone the repository
-2. Run `composer install`
 3. Copy the file `.env.template` to `.env`
 5. Run `docker compose up`
 6. Access the application at `http://localhost:8081`
 
 ### Method 2: Using native PHP
+You need to have PHP and Composer installed on your machine.
 
 1. Clone the repository
 2. Run `composer install`

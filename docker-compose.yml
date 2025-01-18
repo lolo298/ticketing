@@ -18,6 +18,9 @@ services:
         - path: ./ticketing/Dockerfile
           target: /var/www/html/Dockerfile
           action: rebuild
+        - path: ./ticketing/composer.json
+          target: /var/www/html/composer.json
+          action: rebuild
   db:
     image: mysql:8.1.0
     environment:

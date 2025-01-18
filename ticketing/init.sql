@@ -250,10 +250,10 @@ CREATE TABLE `utilisateur` (
   `password` varchar(255) DEFAULT NULL,
   `actif` tinyint DEFAULT NULL,
   `creation_date` datetime DEFAULT CURRENT_TIMESTAMP,
-  `role` int NOT NULL,
+  `id_role` int NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `id_role` (`role`),
-  CONSTRAINT `utilisateur_ibfk_1` FOREIGN KEY (`role`) REFERENCES `role` (`id`)
+  KEY `role` (`id_role`),
+  CONSTRAINT `utilisateur_ibfk_1` FOREIGN KEY (`id_role`) REFERENCES `role` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -263,7 +263,7 @@ CREATE TABLE `utilisateur` (
 
 LOCK TABLES `utilisateur` WRITE;
 /*!40000 ALTER TABLE `utilisateur` DISABLE KEYS */;
-INSERT INTO `utilisateur` VALUES (1,'admin','$2y$10$fTdLg.fTAKDD7cPRZo1Kfuz0Mc8C72iamhO.o8L7Ei7iMX5BBi2Dy',1,'2024-11-03 12:27:47',1),(97,'lolo','$2y$10$CiM99aNYa0.SVUFN5klR0uW7CW1kArspNQL7gq8YxtNqaHgFUx5SC',1,'2025-01-14 16:36:05',2),(103,'cl1','$2y$10$ju7N/E4eKt0n2aPuvIrQf.MAZBswi24LdP7/hcHesPXcBhSOl9ycC',1,'2025-01-16 12:30:24',3),(104,'test','$2y$10$62Jmd0UhWfvV.owQwU8CIueUA5W93M6QahMHIAtiGIebnX3O3Hv66',0,'2025-01-16 13:36:40',2);
+INSERT INTO `utilisateur` VALUES (1,'admin','$2y$10$fTdLg.fTAKDD7cPRZo1Kfuz0Mc8C72iamhO.o8L7Ei7iMX5BBi2Dy',1,'2024-11-03 12:27:47',1),(97,'lolo','$2y$10$CiM99aNYa0.SVUFN5klR0uW7CW1kArspNQL7gq8YxtNqaHgFUx5SC',1,'2025-01-14 16:36:05',2),(103,'cl1','$2y$10$ju7N/E4eKt0n2aPuvIrQf.MAZBswi24LdP7/hcHesPXcBhSOl9ycC',1,'2025-01-16 12:30:24',3),(104,'test','$2y$10$62Jmd0UhWfvV.owQwU8CIueUA5W93M6QahMHIAtiGIebnX3O3Hv66',0,'2025-01-16 13:36:40',2), (105,'user','$2y$10$ngr/wL2fFVA7O70cM62Q6OGCHx06JdPZE5ohb.dKBIRtk4hrKYW7e',1,'2025-01-16 13:36:40',2), (106,'client','$2y$10$DtoUazlXIfIoEvZb/zJ8ue4FWfuhHaQXqPbTt2P.Z6KH2ZJyIVN/a',1,'2025-01-16 13:36:40',3);
 /*!40000 ALTER TABLE `utilisateur` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

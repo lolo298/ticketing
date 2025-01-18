@@ -18,3 +18,15 @@ You need to have PHP and Composer installed on your machine.
 4. Copy the file `.env.template` to `ticketing/.env`
 5. Modify the `ticketing/.env` file to match your database configuration
 6. Run `php -S localhost:8081 -t ticketing/`
+
+## Access the application
+an account is available for each role:
+- Admin:
+  - login: admin
+  - password: admin
+- User:
+  - login: user
+  - password: user
+- Client:
+  - login: client
+  - password: client

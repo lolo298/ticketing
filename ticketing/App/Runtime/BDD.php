@@ -10,7 +10,11 @@ class BDD {
 
   private function __construct() {
     $dbAddress = $_ENV["DB_ADDRESS"];
-    $this::$_pdo = new \PDO("mysql:host=$dbAddress;port=3306;dbname=ticketing", 'root', 'root_password');
+    $dbPort = $_ENV["DB_PORT"];
+    $dbUser = $_ENV["DB_USER"];
+    $dbPassword = $_ENV["DB_PASSWORD"];
+
+    $this::$_pdo = new \PDO("mysql:host=$dbAddress;port=$dbPort;dbname=ticketing", $dbUser, $dbPassword);
   }
 
   public function getPdo(): \PDO { return $this::$_pdo; }

@@ -12,6 +12,7 @@
         }
     ],
     "require": {
-        "twig/twig": "^3.16"
+        "twig/twig": "^3.16",
+        "vlucas/phpdotenv": "^5.6"
     }
 }

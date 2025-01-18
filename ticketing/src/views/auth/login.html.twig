@@ -1,18 +1,23 @@
 {% extends "@auth/auth.html.twig" %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Login
+{% endblock %}
 
 {% block auth %}
-  <form action="{{ path('login') }}" method="post">
-    <h2>Login</h2>
-    {% if error %}
-      <p>{{ error }}</p>
-    {% endif %}
-    <label for="login">login</label>
-    <input type="text" id="login" name="login" value="{{ last_login }}" required autofocus>
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" required>
-    <button type="submit">Login</button>
-  </form>
-  <a href="{{path('register')}}">create an account</a>
+	<form action="{{ path('login') }}" method="post">
+		<h2>Login</h2>
+		{% if error %}
+			<p class="error">{{ error }}</p>
+		{% endif %}
+		<div class="input">
+			<label for="login">login</label>
+			<input type="text" id="login" name="login" value="{{ last_login }}" required autofocus>
+		</div>
+		<div class="input">
+			<label for="password">Password</label>
+			<input type="password" id="password" name="password" required>
+		</div>
+		<button type="submit" class="outline-button">Login</button>
+		<a href="{{path('register')}}">create an account</a>
+	</form>
 {% endblock %}

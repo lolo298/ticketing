@@ -8,6 +8,7 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 use Runtime\Manager;
+use Ticketing\Models\State;
 use Ticketing\Models\Traitement;
 
 class Entity {
@@ -391,6 +392,9 @@ class Entity {
 
       if ($manyToOne->inversedBy !== $this::class) {
         if (in_array($this::class, $circularReferences)) {
+          continue;
+        }
+        if (!array_key_exists("id", $data)) {
           continue;
         }
 

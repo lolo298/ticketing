@@ -1,7 +1,7 @@
 const form = document.querySelector("#editForm");
 const sendChatButton = document.querySelector("#sendChat");
 const chatInput = document.querySelector("#chatInput");
-const closeTicketButton = document.querySelector(".closeTicket");
+const closeTicketButton = document.querySelector("#closeTicket");
 
 const ticketId = dataJSON.id;
 

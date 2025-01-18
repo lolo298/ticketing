@@ -12,69 +12,94 @@
 
 {% block content %}
 
-	<button id="newTicketBtn">nouveau ticket</button>
-	<table>
-		<tr>
-			<th>N°</th>
-			<th>Sujet</th>
-			<th>Creation</th>
-			<th>Mise a jour</th>
-			<th>Demande</th>
-			<th>Etat</th>
-			<th></th>
-		</tr>
-
-		{% for ticket in tickets %}
-			<tr>
-				<td>
-					<a href="{{ path("ticket", {'id':ticket.id}) }}">{{ ticket.id }}</a>
-				</td>
-				<td>{{ ticket.subject }}</td>
-				<td>{{ ticket.creationDate|date("d/M/Y H:m:s") }}</td>
-				<td>{{ ticket.updateDate|date("d/M/Y H:m:s") }}</td>
-				<td class="desc">{{ ticket.description }}</td>
-				<td>{{ ticket.state }}</td>
-				<td>
-					<div class="context-menu">
-						<i class="fa-solid fa-bars"></i>
-						<div class="context-menu-content">
-							<a href="{{ path("ticket", {'id':ticket.id}) }}">Voir</a>
-							{% if ticket.state != "CLOSED" %}
-								<a class="closeTicket" data-id="{{ticket.id}}">Cloturer</a>
-							{% endif %}
-						</div>
-					</div>
-
-				</td>
-
-			</tr>
-		{% endfor %}
-	</table>
-	<dialog id="newTicketModal" class="modal" data-trigger="#newTicketBtn" data-close="#closeNewTicketBtn">
-		<form method="POST" action="{{ path("newTicket") }}">
-
-			<label for="subject">Sujet</label>
-			<input type="text" name="subject" id="subject">
-
-			<label for="description">Description</label>
-			<textarea name="description" id="description" cols="30" rows="10"></textarea>
-
-			<label for="type">Type</label>
-			<select name="type" id="type">
-				{% for type in types %}
-					<option value="{{ type.id }}">{{ type }}</option>
+	<button id="newTicketBtn" class="outline-button transition-colors">nouveau ticket</button>
+	<div class="table-container">
+		<table>
+			<thead class="transition-colors">
+				<tr>
+					<th>N°</th>
+					<th>Sujet</th>
+					<th>Creation</th>
+					<th>Mise a jour</th>
+					<th>Demande</th>
+					<th>Etat</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for ticket in tickets %}
+					<tr class="transition-colors">
+						<td>
+							<a href="{{ path("ticket", {'id':ticket.id}) }}">{{ ticket.id }}</a>
+						</td>
+						<td>{{ ticket.subject }}</td>
+						<td>{{ ticket.creationDate|date("d/m/Y H:m") }}</td>
+						<td>{{ ticket.updateDate|date("d/m/Y H:m") }}</td>
+						<td class="desc">{{ ticket.description }}</td>
+						<td>{{ ticket.state }}</td>
+						<td>
+							<button class="transition-colors action-menu-trigger" data-id="{{ticket.id}}" data-state="{{ticket.state}}">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis ">
+									<circle cx="12" cy="12" r="1"></circle>
+									<circle cx="19" cy="12" r="1"></circle>
+									<circle cx="5" cy="12" r="1"></circle>
+								</svg>
+							</button>
+						</td>
+					</tr>
 				{% endfor %}
-			</select>
+			</tbody>
+		</table>
+	</div>
+	<dialog id="newTicketModal" class="modal" data-trigger="#newTicketBtn" data-close=".close-modal">
+		<div class="modal-content">
+			<h2>Nouveau ticket</h2>
+			<form method="POST" action="{{ path("newTicket") }}">
 
-			<label for="priority">Priorité</label>
-			<select name="priority" id="priority">
-				{% for priority in priorities %}
-					<option value="{{ priority.id }}">{{ priority }}</option>
-				{% endfor %}
-			</select>
+				<div class="input">
+					<label for="subject">Sujet</label>
+					<input type="text" name="subject" id="subject">
+				</div>
 
-			<button type="submit">Envoyer</button>
-			<input type="reset" id="closeNewTicketBtn"/>
-		</form>
+				<div class="input">
+					<label for="description">Description</label>
+					<textarea name="description" id="description" cols="30" rows="10"></textarea>
+				</div>
+				<div class="input">
+
+					<label for="type">Type</label>
+					<select name="type" id="type">
+						{% for type in types %}
+							<option value="{{ type.id }}">{{ type }}</option>
+						{% endfor %}
+					</select>
+				</div>
+
+				<div class="input">
+
+					<label for="priority">Priorité</label>
+					<select name="priority" id="priority">
+						{% for priority in priorities %}
+							<option value="{{ priority.id }}">{{ priority }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="input">
+
+					<button type="submit" class="outline-button transition-colors">Envoyer</button>
+					<input type="reset" class="destructive-button transition-colors" id="closeNewTicketBtn"/>
+				</div>
+			</form>
+			<button class="close-modal">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+			</button>
+		</div>
 	</dialog>
+
+	<div class="action-menu">
+		<div class="context-menu">
+			<div class="context-menu-item seeTicket">Voir</div>
+			<div class="context-menu-item closeTicket">Cloturer</div>
+		</div>
+	</div>
 {% endblock %}
